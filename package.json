@@ -1,0 +1,12 @@
+{
+    "name": "example-pulumi-setup",
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^18",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.113.0",
+        "@pulumiverse/time": "^0.1.1"
+    }
+}

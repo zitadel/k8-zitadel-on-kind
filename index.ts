@@ -12,7 +12,12 @@ const traefik_ns = new k8s.core.v1.Namespace("traefik-system", {
 	metadata: { name: "traefik-system" },
 });
 
-// 3) Install Traefik Ingress Controller - Latest version
+// 3) Namespace for Monitoring (NEW)
+const monitoring_ns = new k8s.core.v1.Namespace("monitoring", {
+	metadata: { name: "monitoring" },
+});
+
+// 4) Install Traefik Ingress Controller - Latest version
 const traefik = new k8s.helm.v3.Chart("traefik", {
 	namespace: traefik_ns.metadata.name,
 	chart: "traefik",
@@ -30,7 +35,7 @@ const traefik = new k8s.helm.v3.Chart("traefik", {
 	},
 }, { dependsOn: traefik_ns });
 
-// 4) PostgreSQL
+// 5) PostgreSQL
 const pg = new k8s.helm.v3.Chart("postgres", {
 	namespace: ns.metadata.name,
 	chart: "postgresql",
@@ -51,12 +56,88 @@ const pg = new k8s.helm.v3.Chart("postgres", {
 	},
 }, { dependsOn: ns });
 
-// 5) Wait for PostgreSQL to be ready
+// 6) Wait for PostgreSQL to be ready
 const delay = new time.Sleep("postgres-delay", {
 	createDuration: "60s",
 }, { dependsOn: pg });
 
-// 6) Zitadel with proper ingress configuration
+// 7) Prometheus without persistence (NEW)
+const prometheus = new k8s.helm.v3.Chart("prometheus", {
+	namespace: monitoring_ns.metadata.name,
+	chart: "prometheus",
+	fetchOpts: {
+		repo: "https://prometheus-community.github.io/helm-charts",
+	},
+	values: {
+		server: {
+			persistentVolume: {
+				enabled: false  // No storage issues
+			},
+			// Enable ingress for Traefik access
+			ingress: {
+				enabled: true,
+				ingressClassName: "traefik",
+				hosts: ["prometheus.localhost"],
+				path: "/",
+				pathType: "Prefix"
+			}
+		},
+		alertmanager: {
+			enabled: false
+		},
+		nodeExporter: {
+			enabled: false  // Avoid port conflicts
+		},
+		pushgateway: {
+			enabled: false
+		},
+		// Add manual scrape config for Zitadel metrics (ROOT LEVEL)
+		extraScrapeConfigs: `
+- job_name: 'zitadel'
+  static_configs:
+    - targets: ['zitadel.zitadel.svc.cluster.local:8080']
+  metrics_path: '/debug/metrics'
+  scrape_interval: 30s
+        `
+	}
+}, { dependsOn: monitoring_ns });
+
+// 8) Grafana without persistence (NEW)
+const grafana = new k8s.helm.v3.Chart("grafana", {
+	namespace: monitoring_ns.metadata.name,
+	chart: "grafana",
+	fetchOpts: {
+		repo: "https://grafana.github.io/helm-charts",
+	},
+	values: {
+		adminPassword: "admin123",
+		persistence: {
+			enabled: false  // No storage issues
+		},
+		datasources: {
+			"datasources.yaml": {
+				apiVersion: 1,
+				datasources: [{
+					name: "Prometheus",
+					type: "prometheus",
+					url: "http://prometheus-server:80",
+					access: "proxy",
+					isDefault: true
+				}]
+			}
+		},
+		// Enable ingress for Traefik access
+		ingress: {
+			enabled: true,
+			ingressClassName: "traefik",
+			hosts: ["grafana.localhost"],
+			path: "/",
+			pathType: "Prefix"
+		}
+	}
+}, { dependsOn: [monitoring_ns, prometheus] });
+
+// 9) Zitadel with proper ingress configuration
 const zitadel = new k8s.helm.v3.Chart(
 	"zitadel",
 	{
@@ -125,6 +206,13 @@ const zitadel = new k8s.helm.v3.Chart(
 					enabled: true,
 				},
 			},
+			// Enable metrics for Prometheus (but disable ServiceMonitor since we're using manual scrape config)
+			metrics: {
+				enabled: true,
+				serviceMonitor: {
+					enabled: false,  // Not needed with manual scrape config
+				},
+			},
 		},
 	},
 	{ dependsOn: [pg, delay, traefik] }
@@ -132,3 +220,9 @@ const zitadel = new k8s.helm.v3.Chart(
 
 export const namespace = ns.metadata.name;
 export const traefikNamespace = traefik_ns.metadata.name;
+
+// NEW exports for monitoring
+export const monitoringNamespace = monitoring_ns.metadata.name;
+export const grafanaAccess = "kubectl port-forward -n monitoring svc/grafana 3000:80";
+export const prometheusAccess = "kubectl port-forward -n monitoring svc/prometheus-server 9090:80";
+export const credentials = "admin / admin123";

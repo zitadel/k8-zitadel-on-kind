@@ -37,6 +37,35 @@ const traefik = new k8s.helm.v3.Chart("traefik", {
 				entryPoints: ["web"]
 			},
 		},
+		metrics: {
+			prometheus: {
+				addEntryPointsLabels: true,
+				addServicesLabels: true,
+			},
+		},
+		ports: {
+			web: {
+				port: 8000,
+				expose: {
+					default: true,
+				},
+				exposedPort: 80,
+			},
+			websecure: {
+				port: 8443,
+				expose: {
+					default: true,
+				},
+				exposedPort: 443,
+			},
+			metrics: {
+				port: 9100,
+				expose: {
+					default: false,
+				},
+				protocol: "TCP",
+			},
+		},
 	},
 }, {dependsOn: traefik_ns});
 

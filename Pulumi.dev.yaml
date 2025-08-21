@@ -1,0 +1,6 @@
+config:
+  example-pulumi-setup:zitadel-admin-firstname: Mridang
+  example-pulumi-setup:zitadel-admin-lastname: Agarwalla
+  example-pulumi-setup:zitadel-admin-email: mridang@zitadel.com
+  example-pulumi-setup:zitadel-admin-username: mymridang
+  example-pulumi-setup:domain: dev.mrida.ng

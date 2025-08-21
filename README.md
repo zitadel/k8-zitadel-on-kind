@@ -24,6 +24,7 @@ pulumi up --yes
 ```
 
 The deployment creates:
+
 - `traefik-system` namespace with Traefik ingress controller
 - `zitadel` namespace with PostgreSQL and Zitadel services
 - Proper RBAC permissions for cross-namespace service discovery
@@ -32,17 +33,20 @@ The deployment creates:
 ## Services Deployed
 
 ### Traefik (traefik-system namespace)
+
 - **Service Type**: LoadBalancer
 - **External IP**: Assigned by Docker Desktop
 - **Ports**: 80:80, 443:443
 
 ### PostgreSQL (zitadel namespace)
+
 - **Chart**: bitnami/postgresql v12.10.0
 - **Database**: `zitadel`
 - **User**: `zitadel` / `zitadel`
 - **Admin**: `postgres` / `postgres`
 
 ### Zitadel (zitadel namespace)
+
 - **Main Service**: ClusterIP on port 8080
 - **Login Service**: ClusterIP on port 3000
 - **Version**: v4.0.0
@@ -51,11 +55,13 @@ The deployment creates:
 ## Access Information
 
 ### URLs
+
 - **Zitadel Console**: `http://localhost/ui/console?login_hint=zitadel-admin@zitadel.localhost`
 - **Login Interface**: `http://localhost/ui/v2/login`
 - **Main API**: `http://localhost/`
 
 ### Default Admin Credentials
+
 - **Username**: `zitadel-admin`
 - **Password**: `Password1!`
 - **Email**: `admin@localhost`
@@ -64,16 +70,20 @@ The deployment creates:
 ## Important Notes
 
 ### Host Header Requirement
+
 The ingresses are configured for `Host: localhost`. Access must be via:
+
 - `http://localhost` (works automatically)
 - NOT `http://172.20.0.5` (will timeout due to host header mismatch)
 
 ### Login Process
+
 1. Navigate to: `http://localhost/ui/console?login_hint=zitadel-admin@zitadel.localhost`
 2. Enter password: `Password1!`
 3. Access the Zitadel management console
 
 ### Service Access (for debugging)
+
 ```bash
 # Direct access to Zitadel
 kubectl port-forward -n zitadel svc/zitadel 8080:8080
@@ -91,18 +101,21 @@ kubectl port-forward -n traefik-system svc/traefik 8081:8080
 ## Troubleshooting
 
 ### Check Pod Status
+
 ```bash
 kubectl get pods -n zitadel
 kubectl get pods -n traefik-system
 ```
 
 ### Check Service Discovery
+
 ```bash
 kubectl get svc -n zitadel
 kubectl get ingress -n zitadel
 ```
 
 ### Check Logs
+
 ```bash
 # Zitadel logs
 kubectl logs -n zitadel deployment/zitadel --tail=50
@@ -115,6 +128,7 @@ kubectl logs -n zitadel job/zitadel-setup --tail=50
 ```
 
 ### RBAC Verification
+
 ```bash
 # Verify Traefik can see services
 kubectl get svc -n zitadel --as=system:serviceaccount:traefik-system:traefik
@@ -123,11 +137,13 @@ kubectl get svc -n zitadel --as=system:serviceaccount:traefik-system:traefik
 ## Configuration Details
 
 ### Traefik Configuration
+
 - Service type: LoadBalancer (works with Docker Desktop)
 - RBAC enabled for cross-namespace access
 - Default ingress class enabled
 
 ### Zitadel Configuration
+
 - External domain: `localhost`
 - External port: 80
 - TLS disabled (for local development)
@@ -135,6 +151,7 @@ kubectl get svc -n zitadel --as=system:serviceaccount:traefik-system:traefik
 - FirstInstance admin user auto-created
 
 ### PostgreSQL Configuration
+
 - Trust authentication enabled (`host all all all trust`)
 - Dedicated database and user for Zitadel
 - Persistent storage via StatefulSet

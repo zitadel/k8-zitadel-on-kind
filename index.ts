@@ -84,13 +84,18 @@ const pg = new k8s.helm.v3.Chart("postgres", {
 			postgresPassword: "postgres",
 		},
 		primary: {
-			pgHbaConfiguration: "host all all all trust",
+			pgHbaConfiguration: `
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+host    all             all             all                     trust
+`,
 		},
 	},
 }, {dependsOn: ns});
 
 const delay = new time.Sleep("postgres-delay", {
-	createDuration: "60s",
+	createDuration: "120s",
 }, {dependsOn: pg});
 
 const prometheus = new k8s.helm.v3.Chart("prometheus", {
@@ -166,12 +171,17 @@ const grafana = new k8s.helm.v3.Chart("grafana", {
 
 const zitadel = new k8s.helm.v3.Chart("zitadel", {
 	namespace: ns.metadata.name,
-	chart: "zitadel",
-	version: "9.0.0",
-	fetchOpts: {
-		repo: "https://charts.zitadel.com",
-	},
+	path: "/Users/mridang/Code/zitadel/zitadel-charts/charts/zitadel",
+	// chart: "zitadel",
+	// version: "9.0.0",
+	// fetchOpts: {
+	// 	repo: "https://charts.zitadel.com",
+	// },
 	values: {
+		image: {
+			tag: "v4.0.2"
+		},
+		replicaCount: 2,
 		zitadel: {
 			masterkey: "MyVerySecretMasterKeyMustBe32Byt",
 			configmapConfig: {

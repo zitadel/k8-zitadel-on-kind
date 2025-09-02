@@ -1,10 +1,22 @@
 {
-  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.7/.schema/devbox.schema.json",
-  "packages": ["kubectl@latest", "pulumi-bin@latest"],
-  "shell": {
-    "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
-    "scripts": {
-      "test": ["echo \"Error: no test specified\" && exit 1"]
-    }
-  }
+	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.7/.schema/devbox.schema.json",
+	"packages": [
+		"kubectl@latest",
+		"pulumi-bin@latest",
+		"kubernetes-helm@latest",
+		"helmfile@latest",
+		"kubernetes-helmPlugins.helm-diff@latest",
+		"certbot@latest",
+		"lego@latest"
+	],
+	"shell": {
+		"init_hook": [
+			"echo 'Welcome to devbox!' > /dev/null"
+		],
+		"scripts": {
+			"test": [
+				"echo \"Error: no test specified\" && exit 1"
+			]
+		}
+	}
 }

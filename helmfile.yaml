@@ -1,0 +1,78 @@
+helmDefaults:
+    wait: true
+    atomic: true
+    timeout: 600
+    createNamespace: true
+
+repositories:
+    -   name: traefik
+        url: https://traefik.github.io/charts
+    -   name: prometheus-community
+        url: https://prometheus-community.github.io/helm-charts
+    -   name: bitnami
+        url: https://charts.bitnami.com/bitnami
+    -   name: zitadel
+        url: https://charts.zitadel.com
+
+releases:
+    -   name: prepare
+        namespace: traefik-system
+        chart: ./charts/prepare
+        values:
+            - charts/prepare/values.yaml
+        labels:
+            phase: prepare
+
+    # ===== PHASE: operators (CRD providers + controllers) =====
+    -   name: traefik
+        namespace: traefik-system
+        chart: traefik/traefik
+        version: 37.0.0
+        values:
+            - values-traefik.yaml
+        needs:
+            - traefik-system/prepare
+        labels:
+            phase: operators
+
+    # ===== PHASE: crd-objects (instances of CRDs) =====
+    -   name: traefik-mw
+        namespace: traefik-system
+        chart: ./charts/traefik-mw
+        needs:
+            - traefik-system/traefik
+        labels:
+            phase: crd-objects
+
+    # ===== PHASE: storage =====
+    -   name: postgres
+        namespace: zitadel
+        chart: bitnami/postgresql
+        version: 12.10.0
+        values:
+            - values-postgres.yaml
+        labels:
+            phase: storage
+
+    # ===== PHASE: apps =====
+    -   name: prometheus
+        namespace: monitoring
+        chart: prometheus-community/prometheus
+        values:
+            - values-prometheus.yaml
+        needs:
+            - traefik-system/traefik
+        labels:
+            phase: apps
+
+    -   name: zitadel
+        namespace: zitadel
+        chart: zitadel/zitadel
+        version: 9.0.0
+        values:
+            - values-zitadel.yaml
+        needs:
+            - traefik-system/traefik
+            - zitadel/postgres
+        labels:
+            phase: apps

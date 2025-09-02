@@ -1,0 +1,58 @@
+api:
+    dashboard: true
+service:
+    type: LoadBalancer
+deployment:
+    replicas: 1
+persistence:
+    enabled: true
+    path: /data
+    size: 1Gi
+    accessMode: ReadWriteOnce
+env:
+    -   name: CLOUDFLARE_DNS_API_TOKEN
+        valueFrom:
+            secretKeyRef:
+                name: traefik-cloudflare-token
+                key: CLOUDFLARE_DNS_API_TOKEN
+    -   name: CLOUDFLARE_ZONE_API_TOKEN
+        valueFrom:
+            secretKeyRef:
+                name: traefik-cloudflare-token
+                key: CLOUDFLARE_ZONE_API_TOKEN
+ingressRoute:
+    dashboard:
+        enabled: true
+        matchRule: Host(`traefik.dev.mrida.ng`)
+        entryPoints: [ "websecure" ]
+        tls:
+            certResolver: cf
+metrics:
+    prometheus:
+        enabled: true
+        addEntryPointsLabels: true
+        addServicesLabels: true
+ports:
+    web:
+        port: 8000
+        expose:
+            default: true
+        exposedPort: 80
+    websecure:
+        port: 8443
+        expose:
+            default: true
+        exposedPort: 443
+    metrics:
+        port: 9100
+        expose:
+            default: false
+        protocol: TCP
+additionalArguments:
+    - "--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd"
+    - "--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd"
+    - "--certificatesresolvers.cf.acme.email=mridang.agarwall@gmail.com"
+    - "--certificatesresolvers.cf.acme.storage=/data/acme.json"
+    - "--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare"
+    - "--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+    - "--entrypoints.websecure.http.tls.certresolver=cf"

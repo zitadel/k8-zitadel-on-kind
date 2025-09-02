@@ -1,0 +1,31 @@
+alertmanager:
+    enabled: false
+nodeExporter:
+    enabled: false
+pushgateway:
+    enabled: false
+server:
+    persistentVolume:
+        enabled: false
+    ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            traefik.ingress.kubernetes.io/router.tls: "true"
+            traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+        hosts:
+            - prometheus.dev.mrida.ng
+        path: /
+        pathType: Prefix
+extraScrapeConfigs: |
+    - job_name: 'traefik'
+      static_configs:
+        - targets:
+            - 'traefik.traefik-system.svc.cluster.local:9100'
+    - job_name: 'zitadel'
+      metrics_path: /debug/metrics
+      scrape_interval: 30s
+      static_configs:
+        - targets:
+            - 'zitadel.zitadel.svc.cluster.local:8080'

@@ -2,6 +2,6 @@ name: example-pulumi-setup
 description: A minimal TypeScript Pulumi program
 runtime: nodejs
 config:
-  pulumi:tags:
-    value:
-      pulumi:template: typescript
+    pulumi:tags:
+        value:
+            pulumi:template: typescript

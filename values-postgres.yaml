@@ -1,0 +1,19 @@
+auth:
+    username: "zitadel"
+    password: "zitadel"
+    database: "zitadel"
+    postgresPassword: "postgres"
+
+primary:
+    pgHbaConfiguration: |
+        local   all             all                                     trust
+        host    all             all             127.0.0.1/32            trust
+        host    all             all             ::1/128                 trust
+        host    all             all             all                     trust
+
+initdb:
+    scripts:
+        extra.sql: |
+            CREATE DATABASE appdb;
+            CREATE USER appuser WITH ENCRYPTED PASSWORD 'appsecret';
+            GRANT ALL PRIVILEGES ON DATABASE appdb TO appuser;

@@ -1,6 +1,7 @@
 # Zitadel Local Development Setup
 
-This guide documents the complete setup of a local Zitadel identity platform using Pulumi, Kubernetes (Docker Desktop), Traefik, and PostgreSQL.
+This guide documents the complete setup of a local Zitadel identity platform using Pulumi, Kubernetes (Docker Desktop),
+Traefik, and PostgreSQL.
 
 ## Prerequisites
 

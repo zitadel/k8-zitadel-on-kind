@@ -5,6 +5,8 @@ helmDefaults:
     createNamespace: true
 
 repositories:
+    -   name: open-telemetry
+        url: https://open-telemetry.github.io/opentelemetry-helm-charts
     -   name: traefik
         url: https://traefik.github.io/charts
     -   name: prometheus-community
@@ -13,6 +15,8 @@ repositories:
         url: https://charts.bitnami.com/bitnami
     -   name: zitadel
         url: https://charts.zitadel.com
+    -   name: openobserve
+        url: https://charts.openobserve.ai
 
 releases:
     -   name: prepare
@@ -55,6 +59,14 @@ releases:
             phase: storage
 
     # ===== PHASE: apps =====
+    -   name: openobserve
+        namespace: observability
+        chart: openobserve/openobserve-standalone
+        values:
+            - values-openobserve.yaml
+        needs:
+            - traefik-system/traefik
+
     -   name: prometheus
         namespace: monitoring
         chart: prometheus-community/prometheus
@@ -62,6 +74,17 @@ releases:
             - values-prometheus.yaml
         needs:
             - traefik-system/traefik
+        labels:
+            phase: apps
+
+    -   name: otelcol
+        namespace: monitoring
+        chart: open-telemetry/opentelemetry-collector
+        values:
+            - values-otelcol.yaml
+        needs:
+            - traefik-system/traefik
+            - monitoring/prometheus
         labels:
             phase: apps
 

@@ -1,8 +1,8 @@
 auth:
-    username: "zitadel"
-    password: "zitadel"
-    database: "zitadel"
-    postgresPassword: "postgres"
+    username: 'zitadel'
+    password: 'zitadel'
+    database: 'zitadel'
+    postgresPassword: 'postgres'
 
 primary:
     pgHbaConfiguration: |

@@ -1,3 +1,8 @@
+image:
+    registry: ghcr.io
+    repository: traefik/traefik
+    tag: v3.4.5
+    pullPolicy: IfNotPresent
 api:
     dashboard: true
 service:
@@ -24,7 +29,7 @@ ingressRoute:
     dashboard:
         enabled: true
         matchRule: Host(`traefik.dev.mrida.ng`)
-        entryPoints: [ "websecure" ]
+        entryPoints: [ 'websecure' ]
         tls:
             certResolver: cf
 metrics:
@@ -32,6 +37,12 @@ metrics:
         enabled: true
         addEntryPointsLabels: true
         addServicesLabels: true
+tracing:
+    otlp:
+        enabled: true
+        http:
+            enabled: true
+            endpoint: http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
 ports:
     web:
         port: 8000
@@ -49,10 +60,10 @@ ports:
             default: false
         protocol: TCP
 additionalArguments:
-    - "--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd"
-    - "--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd"
-    - "--certificatesresolvers.cf.acme.email=mridang.agarwall@gmail.com"
-    - "--certificatesresolvers.cf.acme.storage=/data/acme.json"
-    - "--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare"
-    - "--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
-    - "--entrypoints.websecure.http.tls.certresolver=cf"
+    - '--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd'
+    - '--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd'
+    - '--certificatesresolvers.cf.acme.email=mridang.agarwall@gmail.com'
+    - '--certificatesresolvers.cf.acme.storage=/data/acme.json'
+    - '--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare'
+    - '--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53'
+    - '--entrypoints.websecure.http.tls.certresolver=cf'

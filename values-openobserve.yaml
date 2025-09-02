@@ -1,0 +1,46 @@
+# values-openobserve.yaml
+image:
+    repository: openobserve/openobserve
+    tag: v0.15.0
+    pullPolicy: IfNotPresent
+
+# Root user (read on FIRST RUN ONLY)
+auth:
+    ZO_ROOT_USER_EMAIL: "admin@dev.mrida.ng"
+    ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set your real password here
+
+# Public URL (optional but nice for links)
+config:
+    ZO_WEB_URL: "https://openobserve.dev.mrida.ng"
+
+# Single-node O2 with Traefik ingress + local PVC
+ingress:
+    enabled: true
+    className: traefik
+    annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+    hosts:
+        -   host: openobserve.dev.mrida.ng
+            paths:
+                -   path: /
+                    pathType: Prefix
+
+persistence:
+    enabled: true
+    size: 20Gi
+    accessModes: [ ReadWriteOnce ]
+
+# (Do NOT put ZO_ROOT_* here; they won’t be used for root creation.)
+env:
+    -   name: ZO_ROOT_ORG
+        value: "default"
+
+service:
+    type: ClusterIP
+    ports:
+        http:
+            port: 5080
+        grpc:
+            port: 5081

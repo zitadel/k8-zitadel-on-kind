@@ -1,4 +1,4 @@
-# values-otelcol.yaml — Collector -> OpenObserve via OTLP/HTTP
+# values-otelcol.yaml — OTLP + Prometheus scraping → OpenObserve
 
 mode: deployment
 
@@ -27,72 +27,114 @@ ports:
         enabled: true
         containerPort: 13133
         servicePort: 13133
-    jaeger-compact:
-        enabled: false
-    jaeger-thrift:
-        enabled: false
-    jaeger-grpc:
-        enabled: false
-    zipkin:
-        enabled: false
+
 
 config:
     receivers:
-        jaeger: null
-        zipkin: null
-        prometheus: null
         otlp:
             protocols:
-                grpc: {}        # REQUIRED: must be {} to enable
+                grpc: {}
                 http: {}
+
+        # Annotation-based Prometheus scraping (pods/services with prometheus.io/*)
+        prometheus:
+            config:
+                global:
+                    scrape_interval: 30s
+                    evaluation_interval: 30s
+                scrape_configs:
+                    - job_name: kubernetes-pods
+                      kubernetes_sd_configs:
+                          - role: pod
+                      relabel_configs:
+                          - action: keep
+                            source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                            regex: "true"
+                          - action: replace
+                            source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                            target_label: __metrics_path__
+                            regex: "(.+)"
+                          - action: replace
+                            source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                            target_label: __address__
+                            regex: "([^:]+)(?::\\d+)?;(\\d+)"
+                            replacement: "$1:$2"
+                          - action: labelmap
+                            regex: __meta_kubernetes_pod_label_(.+)
+                          - action: replace
+                            source_labels: [__meta_kubernetes_namespace]
+                            target_label: kubernetes_namespace
+                          - action: replace
+                            source_labels: [__meta_kubernetes_pod_name]
+                            target_label: kubernetes_pod_name
+
+                    - job_name: kubernetes-services
+                      kubernetes_sd_configs:
+                          - role: service
+                      relabel_configs:
+                          - action: keep
+                            source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+                            regex: "true"
+                          - action: replace
+                            source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+                            target_label: __metrics_path__
+                            regex: "(.+)"
+                          - action: replace
+                            source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+                            target_label: __address__
+                            regex: "([^:]+)(?::\\d+)?;(\\d+)"
+                            replacement: "$1:$2"
+                          - action: labelmap
+                            regex: __meta_kubernetes_service_label_(.+)
 
     processors:
         batch: {}
+        memory_limiter:
+            check_interval: 5s
+            limit_percentage: 80
+            spike_limit_percentage: 25
 
     exporters:
         debug:
             verbosity: basic
         otlphttp/o2:
-            endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default"
+            endpoint: http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default
             headers:
-                Authorization: "Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ=="
-                organization: "default"
-                stream-name: "v1"
+                Authorization: Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ==
+                organization: default
+                stream-name: v1
 
     extensions:
-        health_check: {}    # REQUIRED: must be {} to exist
+        health_check: {}
 
     service:
         extensions:
             - health_check
+
         telemetry:
             metrics:
-                address: 0.0.0.0:8888
+                readers:
+                    - pull:
+                          exporter:
+                              prometheus:
+                                  host: 0.0.0.0
+                                  port: 8888
+
         pipelines:
             traces:
-                receivers:
-                    - otlp
-                processors:
-                    - batch
-                exporters:
-                    - debug
-                    - otlphttp/o2
+                receivers: [otlp]
+                processors: [batch]
+                exporters: [debug, otlphttp/o2]
+
             metrics:
-                receivers:
-                    - otlp
-                processors:
-                    - batch
-                exporters:
-                    - debug
-                    - otlphttp/o2
+                receivers: [otlp, prometheus]
+                processors: [batch]
+                exporters: [debug, otlphttp/o2]
+
             logs:
-                receivers:
-                    - otlp
-                processors:
-                    - batch
-                exporters:
-                    - debug
-                    - otlphttp/o2
+                receivers: [otlp]
+                processors: [batch]
+                exporters: [debug, otlphttp/o2]
 
 serviceMonitor:
     enabled: false

@@ -26,6 +26,14 @@ metrics:
     serviceMonitor:
         enabled: false
 
+env:
+    -   name: ZITADEL_TRACING_TYPE
+        value: "otel"
+    -   name: ZITADEL_TRACING_ENDPOINT
+        value: "otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+    -   name: ZITADEL_TRACING_SERVICENAME
+        value: "zitadel"
+
 zitadel:
     masterkey: 'MyVerySecretMasterKeyMustBe32Byt'
     configmapConfig:

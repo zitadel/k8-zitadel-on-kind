@@ -5,6 +5,8 @@ helmDefaults:
     createNamespace: true
 
 repositories:
+    -   name: vector
+        url: https://helm.vector.dev
     -   name: open-telemetry
         url: https://open-telemetry.github.io/opentelemetry-helm-charts
     -   name: traefik
@@ -97,5 +99,17 @@ releases:
         needs:
             - traefik-system/traefik
             - zitadel/postgres
+        labels:
+            phase: apps
+
+    -   name: vector
+        namespace: monitoring
+        chart: vector/vector
+        version: 0.45.0
+        values:
+            - values-vector.yaml
+        needs:
+            - traefik-system/traefik
+            - monitoring/otelcol
         labels:
             phase: apps

@@ -1,0 +1,66 @@
+role: "Agent"
+
+# Minimal security
+securityContext:
+    privileged: true
+
+podSecurityContext:
+    runAsUser: 0
+
+# Use different volume name to avoid conflicts
+extraVolumes:
+    - name: host-var-log
+      hostPath:
+          path: /var/log
+
+extraVolumeMounts:
+    - name: host-var-log
+      mountPath: /var/log
+      readOnly: true
+
+# Clean environment
+env:
+    - name: VECTOR_LOG
+      value: "debug"
+
+# Disable service to avoid port issues
+service:
+    enabled: false
+
+# Simple config with OpenObserve
+customConfig:
+    sources:
+        kubernetes_logs:
+            type: kubernetes_logs
+
+    sinks:
+        # Keep console output for debugging
+        stdout:
+            type: console
+            inputs: ["kubernetes_logs"]
+            target: stdout
+            encoding:
+                codec: json
+
+        # Send to OpenObserve
+        oo_logs:
+            type: http
+            inputs: ["kubernetes_logs"]
+            uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/default/_multi"
+            method: post
+            encoding:
+                codec: json
+            framing:
+                method: newline_delimited
+            request:
+                headers:
+                    Authorization: "Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ=="
+                    Content-Type: "application/json"
+            compression: gzip
+            buffer:
+                type: memory
+                max_events: 10000
+                when_full: block
+            healthcheck:
+                enabled: true
+                uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"

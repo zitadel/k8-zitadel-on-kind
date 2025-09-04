@@ -2,12 +2,9 @@
 	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.7/.schema/devbox.schema.json",
 	"packages": [
 		"kubectl@latest",
-		"pulumi-bin@latest",
 		"kubernetes-helm@latest",
 		"helmfile@latest",
-		"kubernetes-helmPlugins.helm-diff@latest",
-		"certbot@latest",
-		"lego@latest"
+		"kubernetes-helmPlugins.helm-diff@latest"
 	],
 	"shell": {
 		"init_hook": [

@@ -178,3 +178,63 @@ pulumi destroy --yes
 kubectl get all -n zitadel
 kubectl get all -n traefik-system
 ```
+
+
+# Caveats
+
+#### Not many metrics
+
+Zitadel does not expose any custom metrics. This can be checked the following command
+
+```
+kubectl run curl-test --rm -i --tty --restart=Never --image=curlimages/curl -n zitadel -- curl -s http://zitadel:8080/debug/metrics | grep "^# HELP" | awk '{print $3}' | sort
+```
+
+```
+➜ kubectl run curl-test --rm -i --tty --restart=Never --image=curlimages/curl -n zitadel -- curl -s http://zitadel:8080/debug/metrics | grep "^# HELP" | awk '{print $3}' | sort
+go_gc_duration_seconds
+go_gc_gogc_percent
+go_gc_gomemlimit_bytes
+go_goroutines
+go_info
+go_memstats_alloc_bytes
+go_memstats_alloc_bytes_total
+go_memstats_buck_hash_sys_bytes
+go_memstats_frees_total
+go_memstats_gc_sys_bytes
+go_memstats_heap_alloc_bytes
+go_memstats_heap_idle_bytes
+go_memstats_heap_inuse_bytes
+go_memstats_heap_objects
+go_memstats_heap_released_bytes
+go_memstats_heap_sys_bytes
+go_memstats_last_gc_time_seconds
+go_memstats_mallocs_total
+go_memstats_mcache_inuse_bytes
+go_memstats_mcache_sys_bytes
+go_memstats_mspan_inuse_bytes
+go_memstats_mspan_sys_bytes
+go_memstats_next_gc_bytes
+go_memstats_other_sys_bytes
+go_memstats_stack_inuse_bytes
+go_memstats_stack_sys_bytes
+go_memstats_sys_bytes
+go_sched_gomaxprocs_threads
+go_threads
+grpc_server_grpc_status_code_total
+grpc_server_request_counter_total
+grpc_server_total_request_counter_total
+process_cpu_seconds_total
+process_max_fds
+process_network_receive_bytes_total
+process_network_transmit_bytes_total
+process_open_fds
+process_resident_memory_bytes
+process_start_time_seconds
+process_virtual_memory_bytes
+process_virtual_memory_max_bytes
+projection_events_processed_total
+promhttp_metric_handler_requests_in_flight
+promhttp_metric_handler_requests_total
+target_info
+```

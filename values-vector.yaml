@@ -33,6 +33,10 @@ customConfig:
         kubernetes_logs:
             type: kubernetes_logs
 
+        # NEW: host metrics (minimal)
+        host_metrics:
+            type: host_metrics
+
     sinks:
         # Keep console output for debugging
         stdout:
@@ -42,7 +46,7 @@ customConfig:
             encoding:
                 codec: json
 
-        # Send to OpenObserve
+        # Send logs to OpenObserve (unchanged)
         oo_logs:
             type: http
             inputs: ["kubernetes_logs"]
@@ -61,6 +65,19 @@ customConfig:
                 type: memory
                 max_events: 10000
                 when_full: block
+            healthcheck:
+                enabled: true
+                uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
+
+        # NEW: host metrics -> OpenObserve (Prometheus remote_write)
+        oo_metrics:
+            type: prometheus_remote_write
+            inputs: ["host_metrics"]
+            endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
+            auth:
+                strategy: basic
+                user: "admin@dev.mrida.ng"
+                password: "ChangeMeNow!"
             healthcheck:
                 enabled: true
                 uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"

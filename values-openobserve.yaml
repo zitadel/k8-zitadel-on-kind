@@ -21,6 +21,7 @@ ingress:
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
         traefik.ingress.kubernetes.io/router.tls: "true"
         traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+    tls: []
     hosts:
         -   host: openobserve.dev.mrida.ng
             paths:

@@ -37,6 +37,13 @@ metrics:
         enabled: true
         addEntryPointsLabels: true
         addServicesLabels: true
+        headerLabels:
+            host: "X-Forwarded-Host"
+            user_agent: "User-Agent"
+            referer: "Referer"
+            x_real_ip: "X-Real-IP"
+            x_forwarded_for: "X-Forwarded-For"
+            content_type: "Content-Type"
 tracing:
     otlp:
         enabled: true

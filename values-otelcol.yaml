@@ -95,8 +95,8 @@ config:
             spike_limit_percentage: 25
 
     exporters:
-        debug:
-            verbosity: basic
+        #debug:
+        #    verbosity: basic
         otlphttp/o2:
             endpoint: http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default
             headers:
@@ -124,17 +124,17 @@ config:
             traces:
                 receivers: [otlp]
                 processors: [batch]
-                exporters: [debug, otlphttp/o2]
+                exporters: [otlphttp/o2]
 
             metrics:
                 receivers: [otlp, prometheus]
                 processors: [batch]
-                exporters: [debug, otlphttp/o2]
+                exporters: [otlphttp/o2]
 
             logs:
                 receivers: [otlp]
                 processors: [batch]
-                exporters: [debug, otlphttp/o2]
+                exporters: [otlphttp/o2]
 
 serviceMonitor:
     enabled: false

@@ -12,11 +12,15 @@ extraVolumes:
     - name: host-var-log
       hostPath:
           path: /var/log
+    - name: vector-data-dir
+      emptyDir: {}
 
 extraVolumeMounts:
     - name: host-var-log
       mountPath: /var/log
       readOnly: true
+    - name: vector-data-dir
+      mountPath: /var/lib/vector
 
 # Clean environment
 env:

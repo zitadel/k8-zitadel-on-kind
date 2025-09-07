@@ -33,6 +33,10 @@ env:
         value: "otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"
     -   name: ZITADEL_TRACING_SERVICENAME
         value: "zitadel"
+    -   name: OTEL_METRICS_EXEMPLAR_FILTER
+        value: "always_off"
+    -   name: OTEL_LOG_LEVEL
+        value: "error"
 
 zitadel:
     masterkey: 'MyVerySecretMasterKeyMustBe32Byt'

@@ -43,12 +43,12 @@ customConfig:
 
     sinks:
         # Keep console output for debugging
-        stdout:
-            type: console
-            inputs: ["kubernetes_logs"]
-            target: stdout
-            encoding:
-                codec: json
+#        stdout:
+#            type: console
+#            inputs: ["kubernetes_logs"]
+#            target: stdout
+#            encoding:
+#                codec: json
 
         # Send logs to OpenObserve (unchanged)
         oo_logs:

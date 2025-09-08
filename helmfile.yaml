@@ -1,9 +1,27 @@
+# This Helmfile describes a full observability and identity stack. It uses
+# phases to structure the deployment, allowing for granular control.
+#
+# You can deploy the entire stack with `helmfile sync` or deploy specific
+# phases in order, for example,
+#   helmfile sync --selector phase=prepare
+#   helmfile sync --selector phase=operators
+#   ...and so on.
+
+# These are the default settings that apply to every release defined below.
+# They help reduce repetition and ensure consistency.
 helmDefaults:
+    # Wait for all resources to be in a ready state before marking the
+    # release as successful.
     wait: true
+    # If a deployment fails, roll back to the last known good release.
     atomic: true
+    # Time in seconds to wait for any individual Kubernetes operation.
     timeout: 600
+    # Automatically create the namespace if it doesn't exist.
     createNamespace: true
 
+# This section defines the Helm chart repositories used in this file.
+# Helmfile will use these URLs to fetch the specified charts.
 repositories:
     -   name: vector
         url: https://helm.vector.dev
@@ -18,7 +36,65 @@ repositories:
     -   name: openobserve
         url: https://charts.openobserve.ai
 
+# ## Helmfile Deployment Phases
+#
+# Using phases breaks down a complex deployment into logical, ordered stages,
+# ensuring foundational components are ready before their dependents are
+# installed.
+#
+# ### Phase 1: prepare
+#
+# The foundational first step. Its only job is to create essential resources
+# that everything else in the cluster will rely on.
+#
+#   What it does: Typically, this phase creates Namespaces and Secrets.
+#   Reasoning: Many Helm charts assume their namespace already exists.
+#   Creating them here prevents race conditions and ensures a clean setup for
+#   subsequent components.
+#
+# ### Phase 2: operators
+#
+# This phase installs the "brains" of your Kubernetes cluster. Operators are
+# controllers that extend Kubernetes by introducing Custom Resource
+# Definitions (CRDs).
+#
+#   What it does: Deploys the Traefik Ingress Controller.
+#   Reasoning: The operator must be running before you can create any of its
+#   custom resources (like Middleware or IngressRoute). This ensures the
+#   cluster is ready to manage these custom objects in the next stages.
+#
+# ### Phase 3: crd-objects
+#
+# This phase creates instances of the Custom Resources that were made
+# available by the operators in the previous phase.
+#
+#   What it does: Deploys the Traefik Middleware resources.
+#   Reasoning: You can only create a Middleware object after the Traefik
+#   operator is running. This phase populates the cluster with specific
+#   configurations that the operator will then act upon.
+#
+# ### Phase 4: storage
+#
+# This phase is dedicated to deploying stateful services, most commonly
+# databases, that applications will depend on.
+#
+#   What it does: Deploys the PostgreSQL database.
+#   Reasoning: Core applications will fail to start if they cannot connect
+#   to their database. This guarantees that the storage layer is up and
+#   ready to accept connections before any application needs it.
+#
+# ### Phase 5: apps
+#
+# The final and largest stage, where the main applications are deployed.
+# These applications utilize all the foundational layers from previous phases.
+#
+#   What it does: Deploys OpenObserve, OTel Collector, Zitadel, and Vector.
+#   Reasoning: At this point, ingress is ready, the database is available,
+#   and the observability backend is running. The applications can now start
+#   with all their dependencies fully in place.
+#
 releases:
+    # Sets up prerequisite resources for the entire stack.
     -   name: prepare
         namespace: traefik-system
         chart: ./charts/prepare
@@ -27,7 +103,7 @@ releases:
         labels:
             phase: prepare
 
-    # ===== PHASE: operators (CRD providers + controllers) =====
+    # Deploys Traefik, the Ingress Controller and reverse proxy.
     -   name: traefik
         namespace: traefik-system
         chart: traefik/traefik
@@ -39,7 +115,7 @@ releases:
         labels:
             phase: operators
 
-    # ===== PHASE: crd-objects (instances of CRDs) =====
+    # Deploys global Middleware custom resources used by Traefik.
     -   name: traefik-mw
         namespace: traefik-system
         chart: ./charts/traefik-mw
@@ -48,7 +124,7 @@ releases:
         labels:
             phase: crd-objects
 
-    # ===== PHASE: storage =====
+    # Deploys the PostgreSQL database required by Zitadel.
     -   name: postgres
         namespace: zitadel
         chart: bitnami/postgresql
@@ -58,7 +134,7 @@ releases:
         labels:
             phase: storage
 
-    # ===== PHASE: apps =====
+    # Deploys OpenObserve, the unified observability backend.
     -   name: openobserve
         namespace: observability
         chart: openobserve/openobserve-standalone
@@ -66,7 +142,10 @@ releases:
             - values-openobserve.yaml
         needs:
             - traefik-system/traefik
+        labels:
+            phase: apps
 
+    # Deploys the OpenTelemetry Collector to forward telemetry.
     -   name: otelcol
         namespace: monitoring
         chart: open-telemetry/opentelemetry-collector
@@ -78,6 +157,7 @@ releases:
         labels:
             phase: apps
 
+    # Deploys Zitadel, the identity and access management platform.
     -   name: zitadel
         namespace: zitadel
         chart: zitadel/zitadel
@@ -91,6 +171,7 @@ releases:
         labels:
             phase: apps
 
+    # Deploys Vector to collect logs and host metrics from every node.
     -   name: vector
         namespace: monitoring
         chart: vector/vector

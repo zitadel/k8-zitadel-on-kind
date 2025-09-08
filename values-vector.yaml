@@ -9,23 +9,23 @@ podSecurityContext:
 
 # Use different volume name to avoid conflicts
 extraVolumes:
-    - name: host-var-log
-      hostPath:
-          path: /var/log
-    - name: vector-data-dir
-      emptyDir: {}
+    -   name: host-var-log
+        hostPath:
+            path: /var/log
+    -   name: vector-data-dir
+        emptyDir: { }
 
 extraVolumeMounts:
-    - name: host-var-log
-      mountPath: /var/log
-      readOnly: true
-    - name: vector-data-dir
-      mountPath: /var/lib/vector
+    -   name: host-var-log
+        mountPath: /var/log
+        readOnly: true
+    -   name: vector-data-dir
+        mountPath: /var/lib/vector
 
 # Clean environment
 env:
-    - name: VECTOR_LOG
-      value: "debug"
+    -   name: VECTOR_LOG
+        value: "debug"
 
 # Disable service to avoid port issues
 service:
@@ -41,19 +41,81 @@ customConfig:
         host_metrics:
             type: host_metrics
 
+    transforms:
+        unmangled_logs:
+            type: remap
+            inputs: [ "kubernetes_logs" ]
+            source: |
+                # OpenObserve logs
+                if match(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (\w+) (.+)') {
+                    captures = parse_regex!(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (?P<level>\w+) (?P<rest>.+)')
+                    .level = downcase(captures.level)
+                    .message = captures.rest
+                }
+
+                # Kindnet logs
+                if match(string!(.message), r'^[IWEF]\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ .+') {
+                    captures = parse_regex!(string!(.message), r'^(?P<level>[IWEF])\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ (?P<rest>.+)')
+                    if captures.level == "I" {
+                        .level = "info"
+                    }
+                    if captures.level == "W" {
+                        .level = "warning"
+                    }
+                    if captures.level == "E" {
+                        .level = "error"
+                    }
+                    if captures.level == "F" {
+                        .level = "fatal"
+                    }
+                    .message = captures.rest
+                }
+
+                # Zitadel logs
+                if match(string!(.message), r'time="[^"]+" level=\w+') {
+                    captures = parse_regex!(string!(.message), r'time="[^"]+" level=(?P<level>\w+) msg=(?P<msg>.+)')
+                    .level = captures.level
+                    .message = captures.msg
+                }
+
+                # OpenTelemetry Collector logs
+                if match(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t\w+\t\S+\t') {
+                    captures = parse_regex!(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t(?P<level>\w+)\t\S+\t(?P<rest>.+)')
+                    .level = captures.level
+                    .message = captures.rest
+                }
+
+                # Prometheus logs (time= or ts= with level=)
+                    if match(string!(.message), r'(time|ts)=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}') && match(string!(.message), r'level=\w+') {
+                    captures = parse_regex!(string!(.message), r'.*level=(?P<level>\w+).*msg="(?P<msg>[^"]*)"')
+                    .level = downcase(captures.level)
+                    .message = captures.msg
+                }
+
+                # ETCD
+                if .kubernetes_container_name == "etcd" && starts_with(string!(.message), "{") {
+                    parsed = parse_json!(string!(.message))
+                    .level = parsed.level
+                    del(parsed.level)
+                    del(parsed.ts)
+                    del(parsed.caller)
+                    .message = encode_json(parsed)
+                }
+
+
     sinks:
         # Keep console output for debugging
-#        stdout:
-#            type: console
-#            inputs: ["kubernetes_logs"]
-#            target: stdout
-#            encoding:
-#                codec: json
+        #        stdout:
+        #            type: console
+        #            inputs: ["kubernetes_logs"]
+        #            target: stdout
+        #            encoding:
+        #                codec: json
 
         # Send logs to OpenObserve (unchanged)
         oo_logs:
             type: http
-            inputs: ["kubernetes_logs"]
+            inputs: [ "unmangled_logs" ]
             uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/default/_multi"
             method: post
             encoding:
@@ -76,7 +138,7 @@ customConfig:
         # NEW: host metrics -> OpenObserve (Prometheus remote_write)
         oo_metrics:
             type: prometheus_remote_write
-            inputs: ["host_metrics"]
+            inputs: [ "host_metrics" ]
             endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
             auth:
                 strategy: basic

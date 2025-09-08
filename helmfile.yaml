@@ -7,6 +7,12 @@
 #   helmfile sync --selector phase=operators
 #   ...and so on.
 
+environments:
+    default:
+        values:
+            - config.yaml.gotmpl
+---
+
 # These are the default settings that apply to every release defined below.
 # They help reduce repetition and ensure consistency.
 helmDefaults:
@@ -109,7 +115,7 @@ releases:
         chart: traefik/traefik
         version: 37.0.0
         values:
-            - values-traefik.yaml
+            - values-traefik.yaml.gotmpl
         needs:
             - traefik-system/prepare
         labels:
@@ -130,7 +136,7 @@ releases:
         chart: bitnami/postgresql
         version: 12.10.0
         values:
-            - values-postgres.yaml
+            - values-postgres.yaml.gotmpl
         labels:
             phase: storage
 
@@ -139,7 +145,7 @@ releases:
         namespace: observability
         chart: openobserve/openobserve-standalone
         values:
-            - values-openobserve.yaml
+            - values-openobserve.yaml.gotmpl
         needs:
             - traefik-system/traefik
         labels:
@@ -150,7 +156,7 @@ releases:
         namespace: monitoring
         chart: open-telemetry/opentelemetry-collector
         values:
-            - values-otelcol.yaml
+            - values-otelcol.yaml.gotmpl
         needs:
             - traefik-system/traefik
             - observability/openobserve
@@ -163,7 +169,7 @@ releases:
         chart: zitadel/zitadel
         version: 9.5.0
         values:
-            - values-zitadel.yaml
+            - values-zitadel.yaml.gotmpl
         needs:
             - traefik-system/traefik
             - zitadel/postgres
@@ -177,7 +183,7 @@ releases:
         chart: vector/vector
         version: 0.45.0
         values:
-            - values-vector.yaml
+            - values-vector.yaml.gotmpl
         needs:
             - observability/openobserve
         labels:

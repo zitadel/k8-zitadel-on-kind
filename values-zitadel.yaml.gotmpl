@@ -43,7 +43,7 @@ zitadel:
     configmapConfig:
         ExternalPort: 80 # Should this be 443?
         ExternalSecure: true
-        ExternalDomain: 'zitadel.dev.mrida.ng'
+        ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
         TLS:
             Enabled: false
         Database:

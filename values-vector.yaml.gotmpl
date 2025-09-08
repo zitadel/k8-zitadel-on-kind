@@ -142,7 +142,7 @@ customConfig:
             endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
             auth:
                 strategy: basic
-                user: "admin@dev.mrida.ng"
+                user: "admin@{{ .Environment.Values.domain }}"
                 password: "ChangeMeNow!"
             healthcheck:
                 enabled: false # https://github.com/vectordotdev/vector/issues/8279

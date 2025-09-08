@@ -5,5 +5,10 @@
 		"kubernetes-helm@latest",
 		"helmfile@latest",
 		"kubernetes-helmPlugins.helm-diff@latest"
-	]
+	],
+	"shell": {
+		"init_hook": [
+			"set -a && . ./.env && set +a"
+		]
+	}
 }

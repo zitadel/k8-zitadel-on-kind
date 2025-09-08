@@ -28,7 +28,7 @@ env:
 ingressRoute:
     dashboard:
         enabled: true
-        matchRule: Host(`traefik.dev.mrida.ng`)
+        matchRule: 'Host(`traefik.{{ .Environment.Values.domain }}`)'
         entryPoints: [ 'websecure' ]
         tls:
             certResolver: cf
@@ -69,7 +69,7 @@ ports:
 additionalArguments:
     - '--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd'
     - '--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd'
-    - '--certificatesresolvers.cf.acme.email=mridang.agarwall@gmail.com'
+    - '--certificatesresolvers.cf.acme.email={{ .Environment.Values.cloudflare.adminEmail }}'
     - '--certificatesresolvers.cf.acme.storage=/data/acme.json'
     - '--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare'
     - '--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53'

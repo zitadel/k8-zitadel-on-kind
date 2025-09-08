@@ -6,12 +6,12 @@ image:
 
 # Root user (read on FIRST RUN ONLY)
 auth:
-    ZO_ROOT_USER_EMAIL: "admin@dev.mrida.ng"
+    ZO_ROOT_USER_EMAIL: "admin@{{ .Environment.Values.domain }}"
     ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set your real password here
 
 # Public URL (optional but nice for links)
 config:
-    ZO_WEB_URL: "https://openobserve.dev.mrida.ng"
+    ZO_WEB_URL: "https://openobserve.{{ .Environment.Values.domain }}"
 
 # Single-node O2 with Traefik ingress + local PVC
 ingress:
@@ -23,7 +23,7 @@ ingress:
         traefik.ingress.kubernetes.io/router.tls.certresolver: cf
     tls: []
     hosts:
-        -   host: openobserve.dev.mrida.ng
+        -   host: "openobserve.{{ .Environment.Values.domain }}"
             paths:
                 -   path: /
                     pathType: Prefix

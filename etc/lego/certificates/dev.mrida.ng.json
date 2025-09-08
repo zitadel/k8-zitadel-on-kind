@@ -1,5 +1,0 @@
-{
-	"domain": "dev.mrida.ng",
-	"certUrl": "https://acme-v02.api.letsencrypt.org/acme/cert/05c786f3c888f2d7b77248b9c2a576ef558b",
-	"certStableUrl": "https://acme-v02.api.letsencrypt.org/acme/cert/05c786f3c888f2d7b77248b9c2a576ef558b"
-}

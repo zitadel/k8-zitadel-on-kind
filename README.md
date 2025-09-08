@@ -238,3 +238,25 @@ promhttp_metric_handler_requests_in_flight
 promhttp_metric_handler_requests_total
 target_info
 ```
+
+#### ETCD logs messy logs
+
+https://github.com/etcd-io/etcd/issues/13295
+
+Once docker desktop switches to 3.6 then we can ditcha that grok hell
+
+➜ kubectl describe pod etcd-desktop-control-plane -n kube-system | grep Image:
+
+    Image:         registry.k8s.io/etcd:3.5.21-0
+
+The current logs from etcd are like
+
+```
+{"level":"info","ts":"2025-09-08T06:09:09.866107Z","caller":"etcdserver/server.go:2569","msg":"compacted Raft logs","compact-index":475052}
+```
+
+
+#### Traefik does not sent OTLP traces in some versions
+
+https://github.com/traefik/traefik/issues/11992
+

@@ -74,6 +74,7 @@ releases:
             - values-otelcol.yaml
         needs:
             - traefik-system/traefik
+            - observability/openobserve
         labels:
             phase: apps
 
@@ -86,6 +87,7 @@ releases:
         needs:
             - traefik-system/traefik
             - zitadel/postgres
+            - monitoring/otelcol
         labels:
             phase: apps
 
@@ -96,7 +98,6 @@ releases:
         values:
             - values-vector.yaml
         needs:
-            - traefik-system/traefik
-            - monitoring/otelcol
+            - observability/openobserve
         labels:
             phase: apps

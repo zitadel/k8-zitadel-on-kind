@@ -1,7 +1,7 @@
 image:
     registry: ghcr.io
     repository: traefik/traefik
-    tag: v3.4.5
+    tag: v3.4.5 # https://github.com/traefik/traefik/issues/11992
     pullPolicy: IfNotPresent
 api:
     dashboard: true

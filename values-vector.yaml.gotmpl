@@ -1,13 +1,21 @@
 role: "Agent"
 
-# Minimal security
+# This container runs in privileged mode. Privileged mode gives full access
+# to the host, which allows reading host logs and metrics. It reduces
+# security, so it should only be used when necessary.
 securityContext:
     privileged: true
 
+# The container runs as root (UID 0). Running as root is required here so
+# Vector can read from /var/log and other system files. In production, it is
+# better to use a non-root user with adjusted permissions if possible.
 podSecurityContext:
     runAsUser: 0
 
-# Use different volume name to avoid conflicts
+# Two additional volumes are mounted into the pod. The first volume mounts
+# the host’s /var/log directory, which allows Vector to access host and
+# container logs. The second volume is an EmptyDir for temporary Vector
+# state such as checkpoints and buffers.
 extraVolumes:
     -   name: host-var-log
         hostPath:
@@ -15,6 +23,10 @@ extraVolumes:
     -   name: vector-data-dir
         emptyDir: { }
 
+# These are the corresponding mounts inside the Vector container. The host’s
+# /var/log is mounted as read-only to prevent accidental changes. The
+# vector-data-dir EmptyDir is mounted at /var/lib/vector to store temporary
+# data.
 extraVolumeMounts:
     -   name: host-var-log
         mountPath: /var/log
@@ -22,7 +34,9 @@ extraVolumeMounts:
     -   name: vector-data-dir
         mountPath: /var/lib/vector
 
-# Clean environment
+# This environment variable sets the log level for Vector itself. Setting it
+# to "debug" enables detailed logs that are useful during troubleshooting.
+# For production, "info" is recommended to reduce verbosity.
 env:
     -   name: VECTOR_LOG
         value: "info"
@@ -34,10 +48,26 @@ service:
 # Simple config with OpenObserve
 customConfig:
     sources:
+        # Collect container logs directly from Kubernetes pods.
+        # Vector kubernetes_logs source docs:
+        # https://vector.dev/docs/reference/configuration/sources/kubernetes_logs/
+        #
+        # This source tails logs from the Kubernetes logging API. It enriches
+        # log events with Kubernetes metadata (namespace, pod, container).
+        # Useful for cluster-wide log collection without mounting host paths.
         kubernetes_logs:
             type: kubernetes_logs
 
-        # NEW: host metrics (minimal)
+        # Collect host-level metrics from the Kubernetes node.
+        # Vector host_metrics source docs:
+        # https://vector.dev/docs/reference/configuration/sources/host_metrics/
+        #
+        # This source scrapes system metrics like CPU, memory, disk, network,
+        # and load average from the host. Minimal setup required since Vector
+        # runs as a DaemonSet on each node, giving per-node visibility.
+        #
+        # By default, it collects a broad set of metrics with standard labels.
+        # These can be exported via Prometheus Remote Write or OTLP.
         host_metrics:
             type: host_metrics
 
@@ -104,15 +134,34 @@ customConfig:
 
 
     sinks:
-        # Keep console output for debugging
-        #        stdout:
-        #            type: console
-        #            inputs: ["kubernetes_logs"]
-        #            target: stdout
-        #            encoding:
-        #                codec: json
-
-        # Send logs to OpenObserve (unchanged)
+        # Send logs to OpenObserve using Vector's HTTP sink.
+        # Vector HTTP sink docs:
+        # https://vector.dev/docs/reference/configuration/sinks/http/
+        #
+        # OpenObserve logs ingestion docs:
+        # https://openobserve.ai/docs/ingestion/logs/#http-endpoint
+        #
+        # Why HTTP here?
+        # OpenObserve’s `_multi` is a logs API that accepts NDJSON (newline-
+        # delimited JSON). Vector's HTTP sink with `encoding.codec = json`
+        # and `framing.method = newline_delimited` matches this format.
+        #
+        # Why not metrics here?
+        # `_multi` is only for logs. Metrics must go through Prometheus
+        # Remote Write or the metrics JSON API (`/ingest/metrics/_json`).
+        # Docs: https://openobserve.ai/docs/ingestion/metrics/
+        #
+        # Auth differences:
+        # Logs API uses a static Basic Auth header. Often provided as a
+        # pre-encoded `Authorization: Basic ...` header string.
+        #
+        # Compression:
+        # Use `gzip` since it is explicitly supported by OpenObserve HTTP.
+        # Vector supports `zstd`, but OpenObserve does not guarantee support.
+        #
+        # Buffer:
+        # `when_full: block` ensures no data loss by applying backpressure.
+        # Alternative: `drop_newest` drops excess events instead of blocking.
         oo_logs:
             type: http
             inputs: [ "unmangled_logs" ]
@@ -135,7 +184,38 @@ customConfig:
                 enabled: true
                 uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
 
-        # NEW: host metrics -> OpenObserve (Prometheus remote_write)
+        # Send host metrics to OpenObserve via Prometheus Remote Write.
+        # Vector Prometheus remote_write sink docs:
+        # https://vector.dev/docs/reference/configuration/sinks/prometheus_remote_write/
+        #
+        # OpenObserve metrics ingestion docs:
+        # https://openobserve.ai/docs/ingestion/metrics/#prometheus-remote-write
+        #
+        # Why remote_write here?
+        # OpenObserve implements Prometheus Remote Write for metrics, which
+        # preserves metric types and labels. It avoids reshaping into logs.
+        #
+        # Why not `_multi`?
+        # `_multi` is logs-only. Metrics here must follow the Prometheus
+        # remote_write protocol or use the JSON API.
+        #
+        # Auth differences:
+        # Remote Write sink in Vector has structured `auth.user` and
+        # `auth.password`. This is safer than pre-encoded headers because
+        # Vector manages encoding. Both resolve to Basic Auth at runtime.
+        #
+        # Compression:
+        # `gzip` is the most widely compatible choice for remote_write.
+        #
+        # Buffer:
+        # Same behavior as logs. You may choose `drop_newest` for metrics if
+        # you prefer throughput over perfect retention (missing points is
+        # usually less critical than missing logs).
+        #
+        # Healthcheck:
+        # Disabled because remote_write has no GET health path. Vector would
+        # 405/415 against the write-only endpoint. See issue below.
+        # https://github.com/vectordotdev/vector/issues/8279
         oo_metrics:
             type: prometheus_remote_write
             inputs: [ "host_metrics" ]

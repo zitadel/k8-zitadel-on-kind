@@ -1,20 +1,58 @@
+# This Traefik deployment issues TLS certificates via ACME using the DNS-01
+# challenge against Cloudflare. Traefik uses the "cf" resolver configured in
+# additionalArguments. Certificates are stored in /data/acme.json on a PVC so
+# they survive pod restarts. The Cloudflare tokens are supplied via env vars
+# and must permit DNS record edits for the target zone. Traefik creates TXT
+# records during validation, waits for propagation, and then requests certs
+# from the ACME CA. The resolver email is used for CA notifications. We set
+# a default cert resolver on the "websecure" entrypoint so new HTTPS routes
+# get certificates automatically. Wildcard certs are supported with DNS-01.
+# See docs:
+# - ACME and DNS-01: https://doc.traefik.io/traefik/https/acme/
+# - Cloudflare provider: https://doc.traefik.io/traefik/https/acme/#providers
+# - Kubernetes (CRD) provider: https://doc.traefik.io/traefik/providers/kubernetes-crd/
+# - Dashboard: https://doc.traefik.io/traefik/operations/dashboard/
+# - Prometheus metrics: https://doc.traefik.io/traefik/observability/metrics/prometheus/
+# - OTLP tracing: https://doc.traefik.io/traefik/observability/tracing/otlp/
+
 image:
     registry: ghcr.io
     repository: traefik/traefik
+    # The tag is pinned to a version known to avoid the referenced issue.
     tag: v3.4.5 # https://github.com/traefik/traefik/issues/11992
+    # If the image is present on the node, it is reused. Otherwise it is
+    # pulled from the registry.
     pullPolicy: IfNotPresent
+
 api:
+    # This enables the dashboard UI. Protect access with network policy,
+    # auth, or a private ingress route.
     dashboard: true
+
 service:
+    # The Service is exposed as a LoadBalancer. In cloud environments this
+    # creates an external load balancer. On bare metal use MetalLB or similar.
     type: LoadBalancer
+
 deployment:
+    # One replica is configured. For high availability, increase replicas
+    # and ensure ACME storage is shared across pods.
     replicas: 1
+
 persistence:
+    # A PersistentVolumeClaim is used for durable state like acme.json.
     enabled: true
+    # The in-pod mount path for persistent data.
     path: /data
+    # The requested PVC size. Increase if you store more state.
     size: 1Gi
+    # ReadWriteOnce is fine for a single replica. Shared storage is needed
+    # for multiple replicas if they must share ACME state.
     accessMode: ReadWriteOnce
+
 env:
+    # Cloudflare tokens used by the DNS-01 challenge. Provide the minimal
+    # scopes needed to edit DNS for the target zone.
     -   name: CLOUDFLARE_DNS_API_TOKEN
         valueFrom:
             secretKeyRef:
@@ -25,18 +63,36 @@ env:
             secretKeyRef:
                 name: traefik-cloudflare-token
                 key: CLOUDFLARE_ZONE_API_TOKEN
+
 ingressRoute:
     dashboard:
+        # This creates an IngressRoute that exposes the dashboard.
         enabled: true
+        # This matches requests for the dashboard host. The domain is
+        # templated from your environment values.
         matchRule: 'Host(`traefik.{{ .Environment.Values.domain }}`)'
+        # Only the HTTPS entrypoint is used for the dashboard.
         entryPoints: [ 'websecure' ]
         tls:
+            # The "cf" resolver obtains and renews the certificate.
             certResolver: cf
+
 metrics:
     prometheus:
+        # This enables Prometheus metrics at the /metrics endpoint.
         enabled: true
+        # This adds an "entrypoint" label so you can filter by web or
+        # websecure when querying metrics.
         addEntryPointsLabels: true
+        # This adds a "service" label so you can break down metrics by the
+        # backend service that handled the request.
         addServicesLabels: true
+        # These map request headers into labels on the requests_total metric.
+        # Use low-cardinality headers to avoid label explosion. Absent headers
+        # yield empty label values. Label names must be valid in Prometheus.
+        # You may add more header labels, but only request headers are
+        # supported here. See docs:
+        # https://doc.traefik.io/traefik/observability/metrics/prometheus/
         headerLabels:
             host: "X-Forwarded-Host"
             user_agent: "User-Agent"
@@ -44,33 +100,58 @@ metrics:
             x_real_ip: "X-Real-IP"
             x_forwarded_for: "X-Forwarded-For"
             content_type: "Content-Type"
+
 tracing:
     otlp:
+        # This enables distributed tracing export via OTLP.
         enabled: true
         http:
+            # This uses OTLP over HTTP rather than gRPC.
             enabled: true
+            # This is the OTLP traces endpoint for your collector. Traefik
+            # sends spans here. Ensure the collector accepts this path.
             endpoint: http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
+
 ports:
     web:
+        # This is the internal container port for plain HTTP.
         port: 8000
+        # This exposes the port on the Service by default.
         expose:
             default: true
+        # This is the Service port visible to clients.
         exposedPort: 80
     websecure:
+        # This is the internal container port for HTTPS.
         port: 8443
+        # This exposes the port on the Service by default.
         expose:
             default: true
+        # This is the Service port visible to clients.
         exposedPort: 443
     metrics:
+        # This is the internal port where /metrics is served.
         port: 9100
+        # This port is not exposed on the Service by default. Scrape it via
+        # a PodMonitor, ServiceMonitor, or by enabling exposure explicitly.
         expose:
             default: false
         protocol: TCP
+
 additionalArguments:
+    # Attach a compression middleware to the HTTP entrypoint. This reduces
+    # response sizes for eligible content.
     - '--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd'
+    # Attach the same compression middleware to the HTTPS entrypoint.
     - '--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd'
+    # ACME account email used for certificate authority notifications.
     - '--certificatesresolvers.cf.acme.email={{ .Environment.Values.cloudflare.adminEmail }}'
+    # File path for ACME data such as acme.json. This is inside the PVC.
     - '--certificatesresolvers.cf.acme.storage=/data/acme.json'
+    # Use the Cloudflare DNS provider for the DNS-01 challenge.
     - '--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare'
+    # Use Cloudflare resolvers for faster DNS propagation checks.
     - '--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53'
+    # Make "cf" the default resolver for the websecure entrypoint so new
+    # TLS routes get certificates automatically.
     - '--entrypoints.websecure.http.tls.certresolver=cf'

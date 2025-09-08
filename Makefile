@@ -1,59 +1,34 @@
-# file: Makefile
-
-.PHONY: all repos deploy deploy-operators deploy-crds deploy-storage deploy-apps \
-        destroy status orphans nuke
+.PHONY: all repos deploy destroy status orphans nuke
 
 HELMFILE ?= helmfile
 SELECT   ?=
 
 all: deploy
 
-repos:
-	helm repo add traefik https://traefik.github.io/charts
-	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm repo add zitadel https://charts.zitadel.com
-	helm repo update
-
-# One-shot, DAG-based (uses needs + labels)
-deploy: repos
+# Deploys the entire stack declaratively using the helmfile.yaml as the
+# single source of truth. This command is dependency-aware and idempotent.
+#
+# Note: A 'make repos' target is not needed. The 'helmfile sync' command
+# automatically adds and updates any repositories defined in the helmfile.
+#
+# The deployment runs in two stages:
+# 1. Isolates the 'prepare' release to securely inject the Cloudflare token.
+# 2. Syncs all other releases, relying on the 'needs' graph to determine
+#    the correct deployment order automatically.
+deploy:
 	@test -n "$$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN not set"; exit 1)
 	$(HELMFILE) -l name=prepare sync --args="--set-string cfToken=$$CLOUDFLARE_API_TOKEN"
 	$(HELMFILE) -l 'name!=prepare' sync $(SELECT)
 
-# Explicit waves (nice on fresh clusters)
-deploy-operators: repos
-	$(HELMFILE) -l phase=operators sync
-
-deploy-crds: repos
-	$(HELMFILE) -l phase=crd-objects sync
-
-deploy-storage: repos
-	$(HELMFILE) -l phase=storage sync
-
-deploy-apps: repos
-	$(HELMFILE) -l phase=apps sync
-
-# Reverse-order destroy (apps -> storage -> crd-objects -> operators)
+# Gracefully uninstalls all Helm releases defined in the helmfile.yaml. It is
+# dependency-aware, using the 'needs' graph to automatically determine the
+# correct reverse teardown order (e.g., uninstalling applications before the
+# storage they depend on). This is the declarative counterpart to 'deploy'.
+# Note: This command only uninstalls the Helm releases. It does NOT delete
+# the namespaces or any associated Persistent Volume Claims (PVCs). For a
+# complete, destructive cleanup that removes entire namespaces, use 'nuke'.
 destroy:
-	-$(HELMFILE) -l phase=apps destroy
-	-$(HELMFILE) -l phase=storage destroy
-	-$(HELMFILE) -l phase=crd-objects destroy
-	-$(HELMFILE) -l phase=operators destroy
-
-status:
-	kubectl -n traefik-system get pods,svc,ingressroute,middleware
-	kubectl -n monitoring get pods,svc,ing
-	kubectl -n zitadel get pods,svc
-
-# List resources in our namespaces that are NOT managed by Helm (potential orphans)
-orphans:
-	@echo "== traefik-system orphans =="
-	-kubectl -n traefik-system get $$(kubectl api-resources --namespaced=true -o name | tr '\n' ',' | sed 's/,$$//') -o name -l '!app.kubernetes.io/managed-by'
-	@echo "== monitoring orphans =="
-	-kubectl -n monitoring get $$(kubectl api-resources --namespaced=true -o name | tr '\n' ',' | sed 's/,$$//') -o name -l '!app.kubernetes.io/managed-by'
-	@echo "== zitadel orphans =="
-	-kubectl -n zitadel get $$(kubectl api-resources --namespaced=true -o name | tr '\n' ',' | sed 's/,$$//') -o name -l '!app.kubernetes.io/managed-by'
+	-$(HELMFILE) destroy
 
 # Hard reset: delete namespaces and wait (Caution: removes PVCs in those namespaces)
 nuke:

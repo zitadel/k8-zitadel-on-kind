@@ -130,7 +130,7 @@ customConfig:
             buffer:
                 type: memory
                 max_events: 10000
-                when_full: block
+                when_full: drop_newest
             healthcheck:
                 enabled: true
                 uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
@@ -144,5 +144,10 @@ customConfig:
                 strategy: basic
                 user: "admin@{{ .Environment.Values.domain }}"
                 password: "ChangeMeNow!"
+            compression: gzip
+            buffer:
+                type: memory
+                max_events: 10000
+                when_full: drop_newest
             healthcheck:
                 enabled: false # https://github.com/vectordotdev/vector/issues/8279

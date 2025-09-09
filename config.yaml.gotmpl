@@ -1,3 +1,5 @@
 domain: {{ requiredEnv "DOMAIN" }}
 cloudflare:
     adminEmail: {{ requiredEnv "CLOUDFLARE_ADMIN_EMAIL" | quote }}
+zitadel:
+    masterKey: {{ requiredEnv "ZITADEL_MASTERKEY" | quote }}

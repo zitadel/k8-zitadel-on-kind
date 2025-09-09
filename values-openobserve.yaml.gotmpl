@@ -1,19 +1,54 @@
+# This values file deploys a single-node OpenObserve (O2) instance behind
+# Traefik with a ClusterIP Service, a Traefik Ingress, and a Persistent
+# Volume for durability. On the first run only, O2 reads the root user
+# email and password from the environment to create the initial admin
+# user. After bootstrap, those variables do not rotate the root user.
+#
+# HTTP (UI and REST) defaults to port 5080. gRPC (OTLP) defaults to port
+# 5081. You can change these with ZO_HTTP_PORT and ZO_GRPC_PORT if needed.
+#
+# ZO_WEB_URL should be set to the public HTTPS URL that users reach in a
+# browser. It is used to generate absolute links in the UI, alerts, and
+# report features.
+#
+# OpenObserve uses organizations to isolate data. The common default is
+# "default". Keep the organization identifier consistent across ingestion
+# endpoints, agents, and dashboards.
+#
+# Helpful docs:
+# - Getting started: https://openobserve.ai/docs/getting-started/
+# - Configuration: https://openobserve.ai/docs/configuration/
+# - Ingestion overview: https://openobserve.ai/docs/ingestion/
+# - Ingest logs (HTTP): https://openobserve.ai/docs/ingestion/logs/
+# - Ingest metrics: https://openobserve.ai/docs/ingestion/metrics/
+# - OTLP (traces, logs, metrics): https://openobserve.ai/docs/ingestion/otlp/
+
 # values-openobserve.yaml
 image:
     repository: openobserve/openobserve
+    # Pin a specific version for repeatable deployments. Review release
+    # notes before upgrading.
     tag: v0.15.0
+    # Reuse a locally cached image if present. Otherwise pull from the
+    # registry.
     pullPolicy: IfNotPresent
 
-# Root user (read on FIRST RUN ONLY)
+# Root user bootstrap. These variables are read on the first startup to
+# create the initial admin user. They have no effect on later restarts.
+# Manage users in the UI or via API after bootstrap.
 auth:
     ZO_ROOT_USER_EMAIL: "admin@{{ .Environment.Values.domain }}"
-    ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set your real password here
+    ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set a strong real password
 
-# Public URL (optional but nice for links)
+# Public base URL for the UI and features that build absolute links. Use
+# the final HTTPS domain that fronts OpenObserve via Traefik.
 config:
     ZO_WEB_URL: "https://openobserve.{{ .Environment.Values.domain }}"
 
-# Single-node O2 with Traefik ingress + local PVC
+# Expose OpenObserve through Traefik. The ingress uses the "websecure"
+# entrypoint, enforces TLS, and relies on the "cf" resolver to obtain
+# certificates via ACME DNS-01. The empty tls array is intentional since
+# Traefik manages certificates dynamically.
 ingress:
     enabled: true
     className: traefik
@@ -28,16 +63,25 @@ ingress:
                 -   path: /
                     pathType: Prefix
 
+# Persist data so metadata, WAL, and local store survive pod restarts.
+# Size this based on expected ingestion volume and retention. For a
+# single-pod setup, ReadWriteOnce is sufficient.
 persistence:
     enabled: true
     size: 20Gi
     accessModes: [ ReadWriteOnce ]
 
-# (Do NOT put ZO_ROOT_* here; they won’t be used for root creation.)
+# Additional environment variables for the container. Do not place the
+# ZO_ROOT_USER_* variables here since bootstrap has already handled them.
+# ZO_ROOT_ORG sets the default organization id you will use in your
+# ingestion endpoints and dashboards.
 env:
     -   name: ZO_ROOT_ORG
         value: "default"
 
+# Internal ClusterIP Service. Port 5080 serves the UI and HTTP ingestion
+# endpoints. Port 5081 serves gRPC and OTLP. If you later expose gRPC
+# externally, ensure the proxy in front supports HTTP/2 for gRPC.
 service:
     type: ClusterIP
     ports:

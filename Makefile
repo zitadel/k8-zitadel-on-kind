@@ -16,8 +16,7 @@ all: deploy
 # 2. Syncs all other releases, relying on the 'needs' graph to determine
 #    the correct deployment order automatically.
 deploy:
-	@test -n "$$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN not set"; exit 1)
-	$(HELMFILE) -l name=prepare sync --args="--set-string cfToken=$$CLOUDFLARE_API_TOKEN"
+	$(HELMFILE) -l name=prepare sync
 	$(HELMFILE) -l 'name!=prepare' sync $(SELECT)
 
 # Gracefully uninstalls all Helm releases defined in the helmfile.yaml. It is

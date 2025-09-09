@@ -1,5 +1,3 @@
-# values-otelcol.yaml — OTLP + Prometheus scraping → OpenObserve
-
 mode: deployment
 
 image:
@@ -114,11 +112,15 @@ config:
         telemetry:
             metrics:
                 readers:
-                    - pull:
-                          exporter:
-                              prometheus:
-                                  host: 0.0.0.0
-                                  port: 8888
+                    - periodic:
+                        exporter:
+                            otlp:
+                                protocol: http/protobuf
+                                endpoint: http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/v1/metrics
+                                headers:
+                                    Authorization: Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ==
+                                    organization: default
+                                    stream-name: v1
 
         pipelines:
             traces:

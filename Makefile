@@ -1,4 +1,4 @@
-.PHONY: all repos deploy destroy status orphans nuke
+.PHONY: all deploy destroy nuke
 
 HELMFILE ?= helmfile
 SELECT   ?=
@@ -32,8 +32,18 @@ destroy:
 
 # Hard reset: delete namespaces and wait (Caution: removes PVCs in those namespaces)
 nuke:
-	-kubectl delete namespace traefik-system monitoring zitadel --ignore-not-found
-	-@kubectl wait namespace/traefik-system --for=delete --timeout=180s 2>/dev/null || true
-	-@kubectl wait namespace/monitoring --for=delete --timeout=180s 2>/dev/null || true
-	-@kubectl wait namespace/zitadel --for=delete --timeout=180s 2>/dev/null || true
-	$(MAKE) deploy
+	@set -eu; \
+	namespaces="$$( $(HELMFILE) list --output=json \
+		| jq --raw-output '.[].namespace | select(. != null and . != "")' \
+		| sort --unique )"; \
+	if [ -z "$$namespaces" ]; then \
+		echo "No namespaces discovered from helmfile."; \
+		exit 0; \
+	fi; \
+	for ns in $$namespaces; do \
+		echo "Deleting namespace $$ns..."; \
+		kubectl delete namespace $$ns --ignore-not-found=true --wait=false; \
+	done; \
+	for ns in $$namespaces; do \
+		kubectl wait namespace/$$ns --for=delete --timeout=180s 2>/dev/null || true; \
+	done

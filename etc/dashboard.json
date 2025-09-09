@@ -1,0 +1,3086 @@
+[
+  {
+    "version": 5,
+    "dashboardId": "7370834583903797248",
+    "title": "OpenTelemetry Collector",
+    "description": "",
+    "role": "",
+    "owner": "",
+    "created": "2025-09-08T15:05:08.283Z",
+    "tabs": [
+      {
+        "tabId": "default",
+        "name": "Default",
+        "panels": [
+          {
+            "id": "Panel_ID1057510",
+            "type": "line",
+            "title": "Span Ingest Rate",
+            "description": "Shows the rate of spans received by the OpenTelemetry Collector, separated into accepted and refused counts per second, allowing you to monitor overall ingestion health and quickly identify drops or rejections in trace data flow.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (receiver, transport) (\n  rate(otelcol_receiver_accepted_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {receiver}/{transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (receiver, transport) (\n  rate(otelcol_receiver_refused_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "refused {receiver}/{transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 9,
+              "w": 16,
+              "h": 7,
+              "i": 1
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID8496210",
+            "type": "line",
+            "title": "Metric Ingest Rate",
+            "description": "Shows the rate of metric points received by the OpenTelemetry Collector, separated into accepted and refused counts per second, highlighting ingestion performance and potential issues with metrics delivery.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (transport) (\n  rate(otelcol_receiver_accepted_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (transport) (\n  rate(otelcol_receiver_refused_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "refused {transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 16,
+              "y": 9,
+              "w": 16,
+              "h": 7,
+              "i": 2
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID4008810",
+            "type": "line",
+            "title": "Log Ingest Rate",
+            "description": "Shows the rate of log records received by the OpenTelemetry Collector, separated into accepted and refused counts per second, giving visibility into log pipeline throughput and rejected records.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (transport) (\n  rate(otelcol_receiver_accepted_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (transport) (\n  rate(otelcol_receiver_refused_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "refused {transport}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 32,
+              "y": 9,
+              "w": 15,
+              "h": 7,
+              "i": 3
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID8625610",
+            "type": "line",
+            "title": "Span Process Rate",
+            "description": "Shows the rate of spans processed by each OpenTelemetry Collector processor, broken down into accepted and refused counts per second, giving insight into where trace data might be dropped inside the pipeline.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_accepted_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_refused_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "discarded {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 16,
+              "w": 16,
+              "h": 7,
+              "i": 4
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID1881210",
+            "type": "line",
+            "title": "Metric Process Rate",
+            "description": "Shows the rate of metric points processed by each OpenTelemetry Collector processor, separated into accepted and refused counts per second, helping monitor throughput and identify bottlenecks or dropped metrics.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_accepted_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_refused_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "discarded {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 16,
+              "y": 16,
+              "w": 16,
+              "h": 7,
+              "i": 5
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID38910",
+            "type": "line",
+            "title": "Log Process Rate",
+            "description": "Shows the rate of log records processed by each OpenTelemetry Collector processor, separated into accepted and refused counts per second, enabling visibility into log handling and processor-level rejections.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_accepted_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "accepted {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (processor) (\n  rate(otelcol_processor_refused_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "discarded {processor}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 32,
+              "y": 16,
+              "w": 15,
+              "h": 7,
+              "i": 6
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID3109310",
+            "type": "line",
+            "title": "Span Export Rate",
+            "description": "Shows the rate of spans successfully sent and failed by each OpenTelemetry Collector exporter, providing visibility into trace delivery reliability to backends.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_sent_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "sent {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_send_failed_spans[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "failed {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 23,
+              "w": 16,
+              "h": 7,
+              "i": 7
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID2861510",
+            "type": "line",
+            "title": "Metric Export Rate",
+            "description": "Shows the rate of metric points successfully sent and failed by each OpenTelemetry Collector exporter, helping detect backend connectivity issues or exporter bottlenecks.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_sent_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "sent {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_send_failed_metric_points[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "failed {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 16,
+              "y": 23,
+              "w": 16,
+              "h": 7,
+              "i": 8
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID4063910",
+            "type": "line",
+            "title": "Log Export Rate",
+            "description": "Shows the rate of log records successfully sent and failed by each OpenTelemetry Collector exporter, ensuring observability pipelines deliver logs reliably to the configured destinations.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_sent_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "sent {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum by (exporter) (\n  rate(otelcol_exporter_send_failed_log_records[5m])\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "otelcol_exporter_sent_spans",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "failed {exporter}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 32,
+              "y": 23,
+              "w": 15,
+              "h": 7,
+              "i": 9
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID983710",
+            "type": "line",
+            "title": "Exporter Queue Free Capacity (%)",
+            "description": "Shows the percentage of free exporter queue capacity remaining over time, grouped by data type and exporter, so you can quickly see when available headroom is dropping toward zero.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "percent",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "100 - (\n  100 * (\n    sum by (data_type, exporter) (otelcol_exporter_queue_size)\n  /\n    clamp_min(sum by (data_type, exporter) (otelcol_exporter_queue_capacity), 1)\n  )\n)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{data_type} ",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 30,
+              "w": 47,
+              "h": 7,
+              "i": 10
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID6331210",
+            "type": "line",
+            "title": "Collector CPU (% of a single core)",
+            "description": "Shows the Collector’s CPU usage as a percentage of a single core per instance (may exceed 100% on multi-core usage).",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "percent",
+              "unit_custom": "%",
+              "decimals": 1,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "(rate(otelcol_process_cpu_seconds[5m]) * 100)\n+ (0 * rate(otelcol_process_cpu_seconds[5m]))",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{service_instance_id}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 11
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID5624310",
+            "type": "line",
+            "title": "Collector Memory Usage",
+            "description": "Shows the resident memory (RSS) used by each OpenTelemetry Collector instance in bytes, reflecting the actual memory held in RAM and helping to identify growth patterns or potential leaks.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "bytes",
+              "unit_custom": "%",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "otelcol_process_memory_rss{}",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{service_instance_id}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 12
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "list": [],
+      "showDynamicFilters": true
+    },
+    "defaultDatetimeDuration": {
+      "type": "relative",
+      "relativeTimePeriod": "30m",
+      "startTime": 1757346626282000,
+      "endTime": 1757348426282000
+    }
+  },
+  {
+    "version": 5,
+    "dashboardId": "7370827241585901568",
+    "title": "Traefik",
+    "description": "",
+    "role": "",
+    "owner": "",
+    "created": "2025-09-08T14:35:57.738Z",
+    "tabs": [
+      {
+        "tabId": "default",
+        "name": "Default",
+        "panels": [
+          {
+            "id": "Panel_ID4677110",
+            "type": "line",
+            "title": "Requests per minute",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum(rate(traefik_service_requests_total[5m])) by (service) * 60",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{service}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 1
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID7495610",
+            "type": "line",
+            "title": "Avg Response Time",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "milliseconds",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": true,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "(sum(rate(traefik_service_request_duration_seconds_sum[5m])) by (service) / sum(rate(traefik_service_request_duration_seconds_count[5m])) by (service)) * 1000",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{service}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 2
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID8396210",
+            "type": "area-stacked",
+            "title": "vddg",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": true,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic",
+                "fixedColor": [],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum(rate(traefik_service_requests_total{code=~\"2[0-9][0-9]\"}[1m]) * 60)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "2xx",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              },
+              {
+                "query": "sum(rate(traefik_service_requests_total{code=~\"3[0-9][0-9]\"}[1m]) * 60)\n",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "3xx",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              },
+              {
+                "query": "sum(rate(traefik_service_requests_total{code=~\"4[0-9][0-9]\"}[1m]) * 60)\n",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "4xx",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              },
+              {
+                "query": "sum(rate(traefik_service_requests_total{code=~\"5[0-9][0-9]\"}[1m]) * 60)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "5xx",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 10,
+              "w": 24,
+              "h": 9,
+              "i": 3
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID1016010",
+            "type": "area-stacked",
+            "title": "HTTP vs HTTPS Traffic",
+            "description": "Shows the distribution of incoming traffic between HTTP and HTTPS protocols at the Traefik entrypoint level, displaying requests per minute for each protocol type.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": true,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "sum(rate(traefik_entrypoint_requests_total[5m]) * 60) by (entrypoint)",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{entrypoint}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 10,
+              "w": 24,
+              "h": 9,
+              "i": 4
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "list": [],
+      "showDynamicFilters": true
+    },
+    "defaultDatetimeDuration": {
+      "type": "relative",
+      "relativeTimePeriod": "3h",
+      "startTime": 1757135484241000,
+      "endTime": 1757146284241000
+    }
+  },
+  {
+    "version": 5,
+    "dashboardId": "7370827241581707264",
+    "title": "Zitadel",
+    "description": "",
+    "role": "",
+    "owner": "",
+    "created": "2025-09-08T14:35:57.737Z",
+    "tabs": [
+      {
+        "tabId": "default",
+        "name": "Default",
+        "panels": [
+          {
+            "id": "Panel_ID2627010",
+            "type": "line",
+            "title": "Go Threads",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "go_threads{k8s_container_name=\"zitadel\"}",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "go_threads",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 18,
+              "w": 24,
+              "h": 9,
+              "i": 1
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID3297110",
+            "type": "line",
+            "title": "CPU Usage (mCPU)",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "1000 *\nsum(rate(process_cpu_seconds_total{app_kubernetes_io_name=\"zitadel\"}[5m]))",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "process_cpu_seconds_total",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 2
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID3326610",
+            "type": "line",
+            "title": "Stack Memory",
+            "description": "",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "bytes",
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "avg_over_time(go_memstats_stack_inuse_bytes{app_kubernetes_io_name=\"zitadel\"}[5m])",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 27,
+              "w": 23,
+              "h": 7,
+              "i": 3
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID9115910",
+            "type": "line",
+            "title": "Memory Heap Objects",
+            "description": "Shows the current number of live objects on the Go heap (go_memstats_heap_objects). This reflects how many objects are actively allocated in memory at runtime. Spikes or steady increases may point to memory leaks or inefficient allocation patterns.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "go_memstats_heap_objects{app_kubernetes_io_name=\"zitadel\"}",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 9,
+              "w": 24,
+              "h": 9,
+              "i": 4
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID9859510",
+            "type": "line",
+            "title": "Memory Allocated - Heap",
+            "description": "Shows the current number of bytes allocated on the Go heap. This reflects the memory actively used by live objects managed by the Go runtime.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "bytes",
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "avg_over_time(go_memstats_heap_alloc_bytes{app_kubernetes_io_name=\"zitadel\"}[5m])",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 9,
+              "w": 24,
+              "h": 9,
+              "i": 5
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID7742810",
+            "type": "line",
+            "title": "Counrotune count",
+            "description": "Shows the current number of bytes allocated on the Go heap. This reflects the memory actively used by live objects managed by the Go runtime.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "avg_over_time(go_goroutines{app_kubernetes_io_name=\"zitadel\"}[5m])",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 18,
+              "w": 24,
+              "h": 9,
+              "i": 6
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID4718110",
+            "type": "line",
+            "title": "Thread count",
+            "description": "Shows the current number of bytes allocated on the Go heap. This reflects the memory actively used by live objects managed by the Go runtime.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "numbers",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "avg_over_time(go_threads{app_kubernetes_io_name=\"zitadel\"}[5m])",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 34,
+              "w": 24,
+              "h": 9,
+              "i": 7
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID2266210",
+            "type": "line",
+            "title": "GC Duration",
+            "description": "Shows the average time the Go runtime spends paused during garbage collection. Reported in seconds, this reflects overall GC overhead but does not capture occasional long pauses.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "seconds",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "rate(go_gc_duration_seconds_sum{app_kubernetes_io_name=\"zitadel\"}[5m])\n/\nrate(go_gc_duration_seconds_count{app_kubernetes_io_name=\"zitadel\"}[5m])",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 24,
+              "y": 27,
+              "w": 24,
+              "h": 9,
+              "i": 8
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID15410",
+            "type": "metric",
+            "title": "Average Uptime",
+            "description": "Shows the average time the Go processes have been running across all nodes. Calculated from process_start_time_seconds. Use this to check for rolling restarts and typical process lifetime.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "seconds",
+              "decimals": 0,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "(time() - avg(process_start_time_seconds{app_kubernetes_io_name=\"zitadel\"}))",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 43,
+              "w": 24,
+              "h": 9,
+              "i": 9
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          },
+          {
+            "id": "Panel_ID6153610",
+            "type": "line",
+            "title": "Total Memory",
+            "description": "Shows the resident memory in bytes used by the process as reported by the OS, including heap, stacks, and off-heap allocations.",
+            "config": {
+              "show_legends": true,
+              "legends_position": null,
+              "unit": "bytes",
+              "decimals": 2,
+              "line_thickness": 1.5,
+              "step_value": "0",
+              "top_results_others": false,
+              "axis_border_show": false,
+              "label_option": {
+                "rotate": 0
+              },
+              "show_symbol": false,
+              "line_interpolation": "smooth",
+              "legend_width": {
+                "unit": "px"
+              },
+              "base_map": {
+                "type": "osm"
+              },
+              "map_type": {
+                "type": "world"
+              },
+              "map_view": {
+                "zoom": 1,
+                "lat": 0,
+                "lng": 0
+              },
+              "map_symbol_style": {
+                "size": "by Value",
+                "size_by_value": {
+                  "min": 1,
+                  "max": 100
+                },
+                "size_fixed": 2
+              },
+              "drilldown": [],
+              "mark_line": [],
+              "override_config": [],
+              "connect_nulls": false,
+              "no_value_replacement": "",
+              "wrap_table_cells": false,
+              "table_transpose": false,
+              "table_dynamic_columns": false,
+              "mappings": [],
+              "color": {
+                "mode": "palette-classic-by-series",
+                "fixedColor": [
+                  "#53ca53"
+                ],
+                "seriesBy": "last",
+                "colorBySeries": []
+              },
+              "trellis": {
+                "layout": null,
+                "num_of_columns": 1,
+                "group_by_y_axis": false
+              }
+            },
+            "queryType": "promql",
+            "queries": [
+              {
+                "query": "process_resident_memory_bytes{app_kubernetes_io_name=\"zitadel\"}",
+                "vrlFunctionQuery": "",
+                "customQuery": true,
+                "fields": {
+                  "stream": "coredns_build_info",
+                  "stream_type": "metrics",
+                  "x": [],
+                  "y": [],
+                  "z": [],
+                  "breakdown": [],
+                  "filter": {
+                    "filterType": "group",
+                    "logicalOperator": "AND",
+                    "conditions": []
+                  }
+                },
+                "config": {
+                  "promql_legend": "{k8s_pod_name}",
+                  "layer_type": "scatter",
+                  "weight_fixed": 1,
+                  "limit": 0,
+                  "min": 0,
+                  "max": 100,
+                  "time_shift": []
+                }
+              }
+            ],
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "w": 24,
+              "h": 9,
+              "i": 10
+            },
+            "htmlContent": "",
+            "markdownContent": "",
+            "customChartContent": " // To know more about ECharts , \n// visit: https://echarts.apache.org/examples/en/index.html \n// Example: https://echarts.apache.org/examples/en/editor.html?c=line-simple \n// Define your ECharts 'option' here. \n// 'data' variable is available for use and contains the response data from the search result and it is an array.\noption = {  \n \n};\n  "
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "list": [],
+      "showDynamicFilters": true
+    },
+    "defaultDatetimeDuration": {
+      "type": "relative",
+      "relativeTimePeriod": "3h",
+      "startTime": 1757135471555000,
+      "endTime": 1757146271555000
+    }
+  }
+]

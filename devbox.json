@@ -4,11 +4,24 @@
 		"kubectl@latest",
 		"kubernetes-helm@latest",
 		"helmfile@latest",
-		"kubernetes-helmPlugins.helm-diff@latest"
+		"kubernetes-helmPlugins.helm-diff@latest",
+		"kind@latest"
 	],
+	"env": {
+		"KUBECONFIG": "$PWD/.kube/config",
+		"CLUSTER_NAME": "$(basename \"$(git rev-parse --show-toplevel)\")"
+	},
 	"shell": {
 		"init_hook": [
-			"set -a && . ./.env && set +a"
-		]
+			"kind get kubeconfig --name \"$CLUSTER_NAME\" > \"$KUBECONFIG\"",
+			"kubectl config use-context kind-$CLUSTER_NAME"
+		],
+		"scripts": {
+			"reset": [
+				"kind delete cluster --name=\"$CLUSTER_NAME\" || true",
+				"kind create cluster --name=\"$CLUSTER_NAME\" --config=charts/zitadel/acceptance_test/kindConfig.yaml",
+				"kind get kubeconfig --name \"$CLUSTER_NAME\" > \"$KUBECONFIG\""
+			]
+		}
 	}
 }

@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: zitadel-tls
+  namespace: zitadel
+spec:
+  secretName: zitadel-tls
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "zitadel.{{ .Values.domain }}"
+    - "zitadel.zitadel.svc.cluster.local"
+  commonName: "zitadel.{{ .Values.domain }}"

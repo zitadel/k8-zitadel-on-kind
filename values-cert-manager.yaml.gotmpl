@@ -1,0 +1,10 @@
+# values-cert-manager.yaml.gotmpl
+
+# Install CRDs as part of the chart
+installCRDs: true
+
+# Enable Prometheus metrics
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: false

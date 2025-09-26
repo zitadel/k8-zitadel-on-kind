@@ -41,6 +41,8 @@ repositories:
         url: https://charts.zitadel.com
     -   name: openobserve
         url: https://charts.openobserve.ai
+    -   name: jetstack
+        url: https://charts.jetstack.io
 
 # ## Helmfile Deployment Phases
 #
@@ -109,6 +111,15 @@ releases:
         labels:
             phase: prepare
 
+    -   name: cert-manager
+        namespace: cert-manager
+        chart: jetstack/cert-manager
+        version: v1.16.2
+        values:
+          - values-cert-manager.yaml.gotmpl
+        labels:
+          phase: operators
+
     # Deploys Traefik, the Ingress Controller and reverse proxy.
     -   name: traefik
         namespace: traefik-system
@@ -118,6 +129,7 @@ releases:
             - values-traefik.yaml.gotmpl
         needs:
             - traefik-system/prepare
+            - cert-manager/cert-manager
         labels:
             phase: operators
 
@@ -125,8 +137,11 @@ releases:
     -   name: traefik-mw
         namespace: traefik-system
         chart: ./charts/traefik-mw
+        values:
+          - {{ toYaml .Environment.Values | nindent 14 }}
         needs:
             - traefik-system/traefik
+            - cert-manager/cert-manager
         labels:
             phase: crd-objects
 

@@ -13,6 +13,9 @@ ingress:
 
 login:
     enabled: true
+    env:
+      - name: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
     ingress:
         enabled: true
         className: traefik
@@ -40,12 +43,13 @@ env:
 
 zitadel:
     masterkeySecretName: zitadel-masterkey
+    serverSslCrtSecret: zitadel-tls
     configmapConfig:
-        ExternalPort: 80 # Should this be 443?
+        ExternalPort: 443
         ExternalSecure: true
         ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
         TLS:
-            Enabled: false
+            Enabled: true
         Database:
             Postgres:
                 Host: 'postgres-postgresql'
@@ -76,3 +80,10 @@ zitadel:
                         Name: 'Automatically Initialized IAM Login Client'
                     Pat:
                         ExpirationDate: '2029-01-01T00:00:00Z'
+
+service:
+  appProtocol: kubernetes.io/https
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: traefik-system-insecure@kubernetescrd
+  scheme: HTTPS

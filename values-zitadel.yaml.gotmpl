@@ -13,6 +13,7 @@ ingress:
 
 login:
     enabled: true
+    serverSslCrtSecret: zitadel-tls
     env:
       - name: NODE_TLS_REJECT_UNAUTHORIZED
         value: "0"
@@ -23,6 +24,9 @@ login:
             traefik.ingress.kubernetes.io/router.entrypoints: websecure
             traefik.ingress.kubernetes.io/router.tls: 'true'
             traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+    service:
+      annotations:
+        traefik.ingress.kubernetes.io/service.serverstransport: traefik-system-insecure@kubernetescrd
 
 metrics:
     enabled: true

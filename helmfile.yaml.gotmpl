@@ -181,7 +181,8 @@ releases:
     # Deploys Zitadel, the identity and access management platform.
     -   name: zitadel
         namespace: zitadel
-        chart: zitadel/zitadel
+        # chart: zitadel/zitadel
+        chart: /Users/mridang/Code/zitadel/zitadel-charts/charts/zitadel
         version: 9.5.0
         values:
             - values-zitadel.yaml.gotmpl

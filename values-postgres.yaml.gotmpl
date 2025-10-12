@@ -23,13 +23,13 @@
 # - TLS is disabled for local development convenience.
 # - Zitadel uses a PostgreSQL backend with an insecure connection.
 # - The FirstInstance admin user is auto-created on the first run when
-#   configured in Zitadel’s own values or bootstrap settings.
+#   configured in Zitadel's own values or bootstrap settings.
 #
 # PostgreSQL configuration overview.
 # - Trust authentication is enabled globally with "host all all all trust".
 # - A dedicated database and user are created for Zitadel.
 # - An extra database and user are created for sample workloads.
-# - Persistent storage is usually provided by the chart’s StatefulSet and
+# - Persistent storage is usually provided by the chart's StatefulSet and
 #   PVC configuration. Verify that persistence is enabled in your chart.
 #
 # Connection string placeholders.
@@ -39,59 +39,66 @@
 # Superuser for admin tasks (do not use in app code):
 #   postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
 
+image:
+  repository: "bitnamilegacy/postgresql"
+
+volumePermissions:
+  image:
+    repository: "bitnamilegacy/os-shell"
+
 auth:
-    # This role is created for the application. Zitadel will connect as this
-    # user by default. In production, store the password in a Secret and use
-    # SCRAM or MD5 authentication in pg_hba.conf.
-    username: 'zitadel'
-    password: 'zitadel'
+  # This role is created for the application. Zitadel will connect as this
+  # user by default. In production, store the password in a Secret and use
+  # SCRAM or MD5 authentication in pg_hba.conf.
+  username: 'zitadel'
+  password: 'zitadel'
 
-    # This database is created and owned by the above user. Zitadel stores
-    # its schema and data here. Adjust if you prefer a different database
-    # layout or separate schemas per service.
-    database: 'zitadel'
+  # This database is created and owned by the above user. Zitadel stores
+  # its schema and data here. Adjust if you prefer a different database
+  # layout or separate schemas per service.
+  database: 'zitadel'
 
-    # This sets the password for the built-in "postgres" superuser. It is
-    # useful for initial bootstrap and admin tasks. In production, store it
-    # in a Secret and restrict who can access it.
-    postgresPassword: 'postgres'
+  # This sets the password for the built-in "postgres" superuser. It is
+  # useful for initial bootstrap and admin tasks. In production, store it
+  # in a Secret and restrict who can access it.
+  postgresPassword: 'postgres'
 
 primary:
-    # This pg_hba.conf snippet enables trust authentication for all traffic.
-    # Trust means the server accepts the stated user identity without a
-    # password. This is acceptable only on isolated developer machines or
-    # throwaway clusters. For production, replace "trust" with "scram-sha-256"
-    # or "md5" and require proper credentials.
-    pgHbaConfiguration: |
-        # Local Unix socket connections do not require a password.
-        local   all             all                                     trust
-        # IPv4 loopback accepts any user without a password.
-        host    all             all             127.0.0.1/32            trust
-        # IPv6 loopback accepts any user without a password.
-        host    all             all             ::1/128                 trust
-        # All other hosts are also trusted. This is very open and suitable
-        # only for local development in a controlled environment.
-        host    all             all             all                     trust
+  # This pg_hba.conf snippet enables trust authentication for all traffic.
+  # Trust means the server accepts the stated user identity without a
+  # password. This is acceptable only on isolated developer machines or
+  # throwaway clusters. For production, replace "trust" with "scram-sha-256"
+  # or "md5" and require proper credentials.
+  pgHbaConfiguration: |
+    # Local Unix socket connections do not require a password.
+    local   all             all                                     trust
+    # IPv4 loopback accepts any user without a password.
+    host    all             all             127.0.0.1/32            trust
+    # IPv6 loopback accepts any user without a password.
+    host    all             all             ::1/128                 trust
+    # All other hosts are also trusted. This is very open and suitable
+    # only for local development in a controlled environment.
+    host    all             all             all                     trust
 
 initdb:
-    scripts:
-        # This script runs once at cluster initialization. It creates an
-        # additional database and a dedicated user for test workloads. The
-        # password is plain text for simplicity. In production, manage users
-        # via migrations or tooling and avoid hardcoding secrets in values.
-        extra.sql: |
-            -- Create a separate database for sample or test data.
-            CREATE DATABASE appdb;
+  scripts:
+    # This script runs once at cluster initialization. It creates an
+    # additional database and a dedicated user for test workloads. The
+    # password is plain text for simplicity. In production, manage users
+    # via migrations or tooling and avoid hardcoding secrets in values.
+    extra.sql: |
+      -- Create a separate database for sample or test data.
+      CREATE DATABASE appdb;
 
-            -- Create a limited user for the above database. The ENCRYPTED
-            -- clause stores a hashed password in the system catalog.
-            CREATE USER appuser WITH ENCRYPTED PASSWORD 'appsecret';
+      -- Create a limited user for the above database. The ENCRYPTED
+      -- clause stores a hashed password in the system catalog.
+      CREATE USER appuser WITH ENCRYPTED PASSWORD 'appsecret';
 
-            -- Grant full privileges on the new database to appuser. For
-            -- tighter control, grant only the required privileges and use
-            -- migrations to manage object ownership.
-            GRANT ALL PRIVILEGES ON DATABASE appdb TO appuser;
+      -- Grant full privileges on the new database to appuser. For
+      -- tighter control, grant only the required privileges and use
+      -- migrations to manage object ownership.
+      GRANT ALL PRIVILEGES ON DATABASE appdb TO appuser;
 
-            -- Optional hardening tips (left commented for dev):
-            -- REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-            -- GRANT USAGE ON SCHEMA public TO appuser;
+      -- Optional hardening tips (left commented for dev):
+      -- REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+      -- GRANT USAGE ON SCHEMA public TO appuser;

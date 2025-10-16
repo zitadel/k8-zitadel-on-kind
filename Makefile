@@ -1,9 +1,19 @@
-.PHONY: all deploy destroy nuke
+.PHONY: all prepare deploy destroy nuke
 
 HELMFILE ?= helmfile
 SELECT   ?=
 
 all: deploy
+
+# Performs pre-flight checks to validate the cluster state before deployment.
+# This target:
+# 1. Verifies connectivity to the Kubernetes cluster's API server.
+# 2. Ensures at least one service of 'type: LoadBalancer' exists, which is
+#    a common prerequisite for ingress controllers to function correctly.
+prepare:
+	@echo "Checking cluster connectivity..."
+	@kubectl cluster-info > /dev/null || (echo "Error: Cannot connect to Kubernetes cluster. Check your kubeconfig." && exit 1)
+	@echo "Pre-flight checks passed."
 
 # Deploys the entire stack declaratively using the helmfile.yaml as the
 # single source of truth. This command is dependency-aware and idempotent.
@@ -15,7 +25,7 @@ all: deploy
 # 1. Isolates the 'prepare' release to securely inject the Cloudflare token.
 # 2. Syncs all other releases, relying on the 'needs' graph to determine
 #    the correct deployment order automatically.
-deploy:
+deploy: prepare
 	$(HELMFILE) -l name=prepare sync
 	$(HELMFILE) -l 'name!=prepare' sync $(SELECT)
 

@@ -8,39 +8,39 @@
 #   ...and so on.
 
 environments:
-    default:
-        values:
-            - config.yaml.gotmpl
+  default:
+    values:
+      - config.yaml.gotmpl
 ---
 
 # These are the default settings that apply to every release defined below.
 # They help reduce repetition and ensure consistency.
 helmDefaults:
-    # Wait for all resources to be in a ready state before marking the
-    # release as successful.
-    wait: true
-    # If a deployment fails, roll back to the last known good release.
-    atomic: true
-    # Time in seconds to wait for any individual Kubernetes operation.
-    timeout: 600
-    # Automatically create the namespace if it doesn't exist.
-    createNamespace: true
+  # Wait for all resources to be in a ready state before marking the
+  # release as successful.
+  wait: true
+  # If a deployment fails, roll back to the last known good release.
+  atomic: true
+  # Time in seconds to wait for any individual Kubernetes operation.
+  timeout: 600
+  # Automatically create the namespace if it doesn't exist.
+  createNamespace: true
 
 # This section defines the Helm chart repositories used in this file.
 # Helmfile will use these URLs to fetch the specified charts.
 repositories:
-    -   name: vector
-        url: https://helm.vector.dev
-    -   name: open-telemetry
-        url: https://open-telemetry.github.io/opentelemetry-helm-charts
-    -   name: traefik
-        url: https://traefik.github.io/charts
-    -   name: bitnami
-        url: https://charts.bitnami.com/bitnami
-    -   name: zitadel
-        url: https://charts.zitadel.com
-    -   name: openobserve
-        url: https://charts.openobserve.ai
+  - name: vector
+    url: https://helm.vector.dev
+  - name: open-telemetry
+    url: https://open-telemetry.github.io/opentelemetry-helm-charts
+  - name: traefik
+    url: https://traefik.github.io/charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: zitadel
+    url: https://charts.zitadel.com
+  - name: openobserve
+    url: https://charts.openobserve.ai
 
 # ## Helmfile Deployment Phases
 #
@@ -100,91 +100,91 @@ repositories:
 #   with all their dependencies fully in place.
 #
 releases:
-    # Sets up prerequisite resources for the entire stack.
-    -   name: prepare
-        namespace: traefik-system
-        chart: ./charts/prepare
-        values:
-            - {{ toYaml .Environment.Values | nindent 14 }}
-        labels:
-            phase: prepare
+  # Sets up prerequisite resources for the entire stack.
+  - name: prepare
+    namespace: traefik-system
+    chart: ./charts/prepare
+    values:
+      - { { toYaml .Environment.Values | nindent 14 } }
+    labels:
+      phase: prepare
 
-    # Deploys Traefik, the Ingress Controller and reverse proxy.
-    -   name: traefik
-        namespace: traefik-system
-        chart: traefik/traefik
-        version: 37.0.0
-        values:
-            - values-traefik.yaml.gotmpl
-        needs:
-            - traefik-system/prepare
-        labels:
-            phase: operators
+  # Deploys Traefik, the Ingress Controller and reverse proxy.
+  - name: traefik
+    namespace: traefik-system
+    chart: traefik/traefik
+    version: 37.0.0
+    values:
+      - values-traefik.yaml.gotmpl
+    needs:
+      - traefik-system/prepare
+    labels:
+      phase: operators
 
-    # Deploys global Middleware custom resources used by Traefik.
-    -   name: traefik-mw
-        namespace: traefik-system
-        chart: ./charts/traefik-mw
-        needs:
-            - traefik-system/traefik
-        labels:
-            phase: crd-objects
+  # Deploys global Middleware custom resources used by Traefik.
+  - name: traefik-mw
+    namespace: traefik-system
+    chart: ./charts/traefik-mw
+    needs:
+      - traefik-system/traefik
+    labels:
+      phase: crd-objects
 
-    # Deploys the PostgreSQL database required by Zitadel.
-    -   name: postgres
-        namespace: zitadel
-        chart: bitnami/postgresql
-        version: 12.10.0
-        values:
-            - values-postgres.yaml.gotmpl
-        labels:
-            phase: storage
+  # Deploys the PostgreSQL database required by Zitadel.
+  - name: postgres
+    namespace: zitadel
+    chart: bitnami/postgresql
+    version: 12.10.0
+    values:
+      - values-postgres.yaml.gotmpl
+    labels:
+      phase: storage
 
-    # Deploys OpenObserve, the unified observability backend.
-    -   name: openobserve
-        namespace: observability
-        chart: openobserve/openobserve-standalone
-        values:
-            - values-openobserve.yaml.gotmpl
-        needs:
-            - traefik-system/traefik
-        labels:
-            phase: apps
+  # Deploys OpenObserve, the unified observability backend.
+  - name: openobserve
+    namespace: observability
+    chart: openobserve/openobserve-standalone
+    values:
+      - values-openobserve.yaml.gotmpl
+    needs:
+      - traefik-system/traefik
+    labels:
+      phase: apps
 
-    # Deploys the OpenTelemetry Collector to forward telemetry.
-    -   name: otelcol
-        namespace: monitoring
-        chart: open-telemetry/opentelemetry-collector
-        values:
-            - values-otelcol.yaml.gotmpl
-        needs:
-            - traefik-system/traefik
-            - observability/openobserve
-        labels:
-            phase: apps
+  # Deploys the OpenTelemetry Collector to forward telemetry.
+  - name: otelcol
+    namespace: monitoring
+    chart: open-telemetry/opentelemetry-collector
+    values:
+      - values-otelcol.yaml.gotmpl
+    needs:
+      - traefik-system/traefik
+      - observability/openobserve
+    labels:
+      phase: apps
 
-    # Deploys Zitadel, the identity and access management platform.
-    -   name: zitadel
-        namespace: zitadel
-        chart: zitadel/zitadel
-        version: 9.12.2
-        values:
-            - values-zitadel.yaml.gotmpl
-        needs:
-            - traefik-system/traefik
-            - zitadel/postgres
-            - monitoring/otelcol
-        labels:
-            phase: apps
+  # Deploys Zitadel, the identity and access management platform.
+  - name: zitadel
+    namespace: zitadel
+    chart: zitadel/zitadel
+    version: 9.12.2
+    values:
+      - values-zitadel.yaml.gotmpl
+    needs:
+      - traefik-system/traefik
+      - zitadel/postgres
+      - monitoring/otelcol
+    labels:
+      phase: apps
 
-    # Deploys Vector to collect logs and host metrics from every node.
-    -   name: vector
-        namespace: monitoring
-        chart: vector/vector
-        version: 0.45.0
-        values:
-            - values-vector.yaml.gotmpl
-        needs:
-            - observability/openobserve
-        labels:
-            phase: apps
+  # Deploys Vector to collect logs and host metrics from every node.
+  - name: vector
+    namespace: monitoring
+    chart: vector/vector
+    version: 0.45.0
+    values:
+      - values-vector.yaml.gotmpl
+    needs:
+      - observability/openobserve
+    labels:
+      phase: apps

@@ -1,14 +1,38 @@
 {
-	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.7/.schema/devbox.schema.json",
-	"packages": [
-		"kubectl@latest",
-		"kubernetes-helm@latest",
-		"helmfile@latest",
-		"kubernetes-helmPlugins.helm-diff@latest"
-	],
-	"shell": {
-		"init_hook": [
-			"export $(cat .env | xargs || true)"
-		]
-	}
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.7/.schema/devbox.schema.json",
+  "packages": [
+    "kubectl@latest",
+    "kubernetes-helm@latest",
+    "helmfile@latest",
+    "kubernetes-helmPlugins.helm-diff@latest",
+    "kind@latest"
+  ],
+  "env": {
+    "KUBECONFIG": "$PWD/.kube/config"
+  },
+  "shell": {
+    "init_hook": [
+      "ROOT=$(git rev-parse --show-toplevel)",
+      "if [ -f \"$ROOT/.env\" ]; then set -a; source \"$ROOT/.env\"; set +a; fi",
+      "export CLUSTER_NAME=$(basename \"$ROOT\")",
+      "mkdir -p $(dirname $KUBECONFIG)",
+      "if kind get clusters | grep -q \"^$CLUSTER_NAME$\"; then",
+      "  kind get kubeconfig --name \"$CLUSTER_NAME\" > \"$KUBECONFIG\"",
+      "  kubectl config use-context kind-$CLUSTER_NAME",
+      "else",
+      "  echo \"⚠️  Cluster '$CLUSTER_NAME' not found. Run 'devbox run reset' to create it.\"",
+      "fi"
+    ],
+    "scripts": {
+      "reset": [
+        "ROOT=$(git rev-parse --show-toplevel)",
+        "if [ -f \"$ROOT/.env\" ]; then set -a; source \"$ROOT/.env\"; set +a; fi",
+        "export CLUSTER_NAME=$(basename \"$ROOT\")",
+        "kind delete cluster --name=\"$CLUSTER_NAME\" || true",
+        "kind create cluster --name=\"$CLUSTER_NAME\" --config=etc/kind.yaml",
+        "mkdir -p $(dirname $KUBECONFIG)",
+        "kind get kubeconfig --name \"$CLUSTER_NAME\" > \"$KUBECONFIG\""
+      ]
+    }
+  }
 }

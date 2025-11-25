@@ -29,6 +29,8 @@ helmDefaults:
 # This section defines the Helm chart repositories used in this file.
 # Helmfile will use these URLs to fetch the specified charts.
 repositories:
+  - name: metallb
+    url: https://metallb.github.io/metallb
   - name: vector
     url: https://helm.vector.dev
   - name: open-telemetry
@@ -64,7 +66,8 @@ repositories:
 # controllers that extend Kubernetes by introducing Custom Resource
 # Definitions (CRDs).
 #
-#   What it does: Deploys the Traefik Ingress Controller.
+#   What it does: Deploys MetalLB for LoadBalancer support and the Traefik
+#   Ingress Controller.
 #   Reasoning: The operator must be running before you can create any of its
 #   custom resources (like Middleware or IngressRoute). This ensures the
 #   cluster is ready to manage these custom objects in the next stages.
@@ -74,7 +77,8 @@ repositories:
 # This phase creates instances of the Custom Resources that were made
 # available by the operators in the previous phase.
 #
-#   What it does: Deploys the Traefik Middleware resources.
+#   What it does: Deploys MetalLB IPAddressPool and L2Advertisement, plus
+#   Traefik Middleware resources.
 #   Reasoning: You can only create a Middleware object after the Traefik
 #   operator is running. This phase populates the cluster with specific
 #   configurations that the operator will then act upon.
@@ -109,6 +113,16 @@ releases:
     labels:
       phase: prepare
 
+  # Deploys MetalLB for LoadBalancer support in Kind.
+  - name: metallb
+    namespace: metallb-system
+    chart: metallb/metallb
+    version: 0.15.2
+    needs:
+      - traefik-system/prepare
+    labels:
+      phase: operators
+
   # Deploys Traefik, the Ingress Controller and reverse proxy.
   - name: traefik
     namespace: traefik-system
@@ -118,8 +132,18 @@ releases:
       - values-traefik.yaml.gotmpl
     needs:
       - traefik-system/prepare
+      - metallb-system/metallb
     labels:
       phase: operators
+
+  # Deploys MetalLB IPAddressPool and L2Advertisement configuration.
+  - name: metallb-config
+    namespace: metallb-system
+    chart: ./charts/metallb-config
+    needs:
+      - metallb-system/metallb
+    labels:
+      phase: crd-objects
 
   # Deploys global Middleware custom resources used by Traefik.
   - name: traefik-mw

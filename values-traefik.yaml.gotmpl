@@ -32,7 +32,7 @@ api:
 service:
     # The Service is exposed as a LoadBalancer. In cloud environments this
     # creates an external load balancer. On bare metal use MetalLB or similar.
-    type: LoadBalancer
+    type: NodePort
 
 deployment:
     # One replica is configured. For high availability, increase replicas
@@ -121,6 +121,8 @@ ports:
             default: true
         # This is the Service port visible to clients.
         exposedPort: 80
+        # NodePort mapped to Kind's extraPortMapping for localhost:80
+        nodePort: 30080
     websecure:
         # This is the internal container port for HTTPS.
         port: 8443
@@ -129,6 +131,8 @@ ports:
             default: true
         # This is the Service port visible to clients.
         exposedPort: 443
+        # NodePort mapped to Kind's extraPortMapping for localhost:443
+        nodePort: 30443
     metrics:
         # This is the internal port where /metrics is served.
         port: 9100

@@ -223,12 +223,6 @@ The current logs from etcd are like
 ```
 
 
-#### Traefik does not sent OTLP traces in some versions
-
-https://github.com/traefik/traefik/issues/11992
-
-
-
 #### Dashboards cannot be pre-installed
 
 https://github.com/openobserve/openobserve/issues/7073

@@ -109,7 +109,7 @@ releases:
     namespace: traefik-system
     chart: ./charts/prepare
     values:
-      - { { toYaml .Environment.Values | nindent 14 } }
+      - {{ toYaml .Environment.Values | nindent 14 }}
     labels:
       phase: prepare
 

@@ -156,6 +156,8 @@ additionalArguments:
     - '--certificatesresolvers.cf.acme.dnschallenge.provider=cloudflare'
     # Use Cloudflare resolvers for faster DNS propagation checks.
     - '--certificatesresolvers.cf.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53'
+    - '--certificatesresolvers.cf.acme.dnschallenge.delaybeforecheck=0'
+    - '--certificatesresolvers.cf.acme.dnschallenge.disablepropagationcheck=true'
     # Make "cf" the default resolver for the websecure entrypoint so new
     # TLS routes get certificates automatically.
     - '--entrypoints.websecure.http.tls.certresolver=cf'

@@ -4,230 +4,230 @@ role: "Agent"
 # to the host, which allows reading host logs and metrics. It reduces
 # security, so it should only be used when necessary.
 securityContext:
-    privileged: true
+  privileged: true
 
 # The container runs as root (UID 0). Running as root is required here so
 # Vector can read from /var/log and other system files. In production, it is
 # better to use a non-root user with adjusted permissions if possible.
 podSecurityContext:
-    runAsUser: 0
+  runAsUser: 0
 
 # Two additional volumes are mounted into the pod. The first volume mounts
 # the host’s /var/log directory, which allows Vector to access host and
 # container logs. The second volume is an EmptyDir for temporary Vector
 # state such as checkpoints and buffers.
 extraVolumes:
-    -   name: host-var-log
-        hostPath:
-            path: /var/log
-    -   name: vector-data-dir
-        emptyDir: { }
+  - name: host-var-log
+    hostPath:
+      path: /var/log
+  - name: vector-data-dir
+    emptyDir: { }
 
 # These are the corresponding mounts inside the Vector container. The host’s
 # /var/log is mounted as read-only to prevent accidental changes. The
 # vector-data-dir EmptyDir is mounted at /var/lib/vector to store temporary
 # data.
 extraVolumeMounts:
-    -   name: host-var-log
-        mountPath: /var/log
-        readOnly: true
-    -   name: vector-data-dir
-        mountPath: /var/lib/vector
+  - name: host-var-log
+    mountPath: /var/log
+    readOnly: true
+  - name: vector-data-dir
+    mountPath: /var/lib/vector
 
 # This environment variable sets the log level for Vector itself. Setting it
 # to "debug" enables detailed logs that are useful during troubleshooting.
 # For production, "info" is recommended to reduce verbosity.
 env:
-    -   name: VECTOR_LOG
-        value: "info"
+  - name: VECTOR_LOG
+    value: "info"
 
 # Disable service to avoid port issues
 service:
-    enabled: false
+  enabled: false
 
 # Simple config with OpenObserve
 customConfig:
-    sources:
-        # Collect container logs directly from Kubernetes pods.
-        # Vector kubernetes_logs source docs:
-        # https://vector.dev/docs/reference/configuration/sources/kubernetes_logs/
-        #
-        # This source tails logs from the Kubernetes logging API. It enriches
-        # log events with Kubernetes metadata (namespace, pod, container).
-        # Useful for cluster-wide log collection without mounting host paths.
-        kubernetes_logs:
-            type: kubernetes_logs
+  sources:
+    # Collect container logs directly from Kubernetes pods.
+    # Vector kubernetes_logs source docs:
+    # https://vector.dev/docs/reference/configuration/sources/kubernetes_logs/
+    #
+    # This source tails logs from the Kubernetes logging API. It enriches
+    # log events with Kubernetes metadata (namespace, pod, container).
+    # Useful for cluster-wide log collection without mounting host paths.
+    kubernetes_logs:
+      type: kubernetes_logs
 
-        # Collect host-level metrics from the Kubernetes node.
-        # Vector host_metrics source docs:
-        # https://vector.dev/docs/reference/configuration/sources/host_metrics/
-        #
-        # This source scrapes system metrics like CPU, memory, disk, network,
-        # and load average from the host. Minimal setup required since Vector
-        # runs as a DaemonSet on each node, giving per-node visibility.
-        #
-        # By default, it collects a broad set of metrics with standard labels.
-        # These can be exported via Prometheus Remote Write or OTLP.
-        host_metrics:
-            type: host_metrics
+    # Collect host-level metrics from the Kubernetes node.
+    # Vector host_metrics source docs:
+    # https://vector.dev/docs/reference/configuration/sources/host_metrics/
+    #
+    # This source scrapes system metrics like CPU, memory, disk, network,
+    # and load average from the host. Minimal setup required since Vector
+    # runs as a DaemonSet on each node, giving per-node visibility.
+    #
+    # By default, it collects a broad set of metrics with standard labels.
+    # These can be exported via Prometheus Remote Write or OTLP.
+    host_metrics:
+      type: host_metrics
 
-    transforms:
-        unmangled_logs:
-            type: remap
-            inputs: [ "kubernetes_logs" ]
-            source: |
-                # OpenObserve logs
-                if match(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (\w+) (.+)') {
-                    captures = parse_regex!(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (?P<level>\w+) (?P<rest>.+)')
-                    .level = downcase(captures.level)
-                    .message = captures.rest
-                }
+  transforms:
+    unmangled_logs:
+      type: remap
+      inputs: [ "kubernetes_logs" ]
+      source: |
+        # OpenObserve logs
+        if match(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (\w+) (.+)') {
+            captures = parse_regex!(string!(.message), r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (?P<level>\w+) (?P<rest>.+)')
+            .level = downcase(captures.level)
+            .message = captures.rest
+        }
 
-                # Kindnet logs
-                if match(string!(.message), r'^[IWEF]\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ .+') {
-                    captures = parse_regex!(string!(.message), r'^(?P<level>[IWEF])\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ (?P<rest>.+)')
-                    if captures.level == "I" {
-                        .level = "info"
-                    }
-                    if captures.level == "W" {
-                        .level = "warning"
-                    }
-                    if captures.level == "E" {
-                        .level = "error"
-                    }
-                    if captures.level == "F" {
-                        .level = "fatal"
-                    }
-                    .message = captures.rest
-                }
+        # Kindnet logs
+        if match(string!(.message), r'^[IWEF]\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ .+') {
+            captures = parse_regex!(string!(.message), r'^(?P<level>[IWEF])\d{4} \d{2}:\d{2}:\d{2}\.\d+\s+\d+ (?P<rest>.+)')
+            if captures.level == "I" {
+                .level = "info"
+            }
+            if captures.level == "W" {
+                .level = "warning"
+            }
+            if captures.level == "E" {
+                .level = "error"
+            }
+            if captures.level == "F" {
+                .level = "fatal"
+            }
+            .message = captures.rest
+        }
 
-                # Zitadel logs
-                if match(string!(.message), r'time="[^"]+" level=\w+') {
-                    captures = parse_regex!(string!(.message), r'time="[^"]+" level=(?P<level>\w+) msg=(?P<msg>.+)')
-                    .level = captures.level
-                    .message = captures.msg
-                }
+        # Zitadel logs
+        if match(string!(.message), r'time="[^"]+" level=\w+') {
+            captures = parse_regex!(string!(.message), r'time="[^"]+" level=(?P<level>\w+) msg=(?P<msg>.+)')
+            .level = captures.level
+            .message = captures.msg
+        }
 
-                # OpenTelemetry Collector logs
-                if match(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t\w+\t\S+\t') {
-                    captures = parse_regex!(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t(?P<level>\w+)\t\S+\t(?P<rest>.+)')
-                    .level = captures.level
-                    .message = captures.rest
-                }
+        # OpenTelemetry Collector logs
+        if match(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t\w+\t\S+\t') {
+            captures = parse_regex!(string!(.message), r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\t(?P<level>\w+)\t\S+\t(?P<rest>.+)')
+            .level = captures.level
+            .message = captures.rest
+        }
 
-                # Prometheus logs (time= or ts= with level=)
-                    if match(string!(.message), r'(time|ts)=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}') && match(string!(.message), r'level=\w+') {
-                    captures = parse_regex!(string!(.message), r'.*level=(?P<level>\w+).*msg="(?P<msg>[^"]*)"')
-                    .level = downcase(captures.level)
-                    .message = captures.msg
-                }
+        # Prometheus logs (time= or ts= with level=)
+            if match(string!(.message), r'(time|ts)=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}') && match(string!(.message), r'level=\w+') {
+            captures = parse_regex!(string!(.message), r'.*level=(?P<level>\w+).*msg="(?P<msg>[^"]*)"')
+            .level = downcase(captures.level)
+            .message = captures.msg
+        }
 
-                # ETCD
-                if .kubernetes_container_name == "etcd" && starts_with(string!(.message), "{") {
-                    parsed = parse_json!(string!(.message))
-                    .level = parsed.level
-                    del(parsed.level)
-                    del(parsed.ts)
-                    del(parsed.caller)
-                    .message = encode_json(parsed)
-                }
+        # ETCD
+        if .kubernetes_container_name == "etcd" && starts_with(string!(.message), "{") {
+            parsed = parse_json!(string!(.message))
+            .level = parsed.level
+            del(parsed.level)
+            del(parsed.ts)
+            del(parsed.caller)
+            .message = encode_json(parsed)
+        }
 
 
-    sinks:
-        # Send logs to OpenObserve using Vector's HTTP sink.
-        # Vector HTTP sink docs:
-        # https://vector.dev/docs/reference/configuration/sinks/http/
-        #
-        # OpenObserve logs ingestion docs:
-        # https://openobserve.ai/docs/ingestion/logs/#http-endpoint
-        #
-        # Why HTTP here?
-        # OpenObserve’s `_multi` is a logs API that accepts NDJSON (newline-
-        # delimited JSON). Vector's HTTP sink with `encoding.codec = json`
-        # and `framing.method = newline_delimited` matches this format.
-        #
-        # Why not metrics here?
-        # `_multi` is only for logs. Metrics must go through Prometheus
-        # Remote Write or the metrics JSON API (`/ingest/metrics/_json`).
-        # Docs: https://openobserve.ai/docs/ingestion/metrics/
-        #
-        # Auth differences:
-        # Logs API uses a static Basic Auth header. Often provided as a
-        # pre-encoded `Authorization: Basic ...` header string.
-        #
-        # Compression:
-        # Use `gzip` since it is explicitly supported by OpenObserve HTTP.
-        # Vector supports `zstd`, but OpenObserve does not guarantee support.
-        #
-        # Buffer:
-        # `when_full: block` ensures no data loss by applying backpressure.
-        # Alternative: `drop_newest` drops excess events instead of blocking.
-        oo_logs:
-            type: http
-            inputs: [ "unmangled_logs" ]
-            uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/default/_multi"
-            method: post
-            encoding:
-                codec: json
-            framing:
-                method: newline_delimited
-            request:
-                headers:
-                    Authorization: "Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ=="
-                    Content-Type: "application/json"
-            compression: gzip
-            buffer:
-                type: memory
-                max_events: 10000
-                when_full: drop_newest
-            healthcheck:
-                enabled: true
-                uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
+  sinks:
+    # Send logs to OpenObserve using Vector's HTTP sink.
+    # Vector HTTP sink docs:
+    # https://vector.dev/docs/reference/configuration/sinks/http/
+    #
+    # OpenObserve logs ingestion docs:
+    # https://openobserve.ai/docs/ingestion/logs/#http-endpoint
+    #
+    # Why HTTP here?
+    # OpenObserve’s `_multi` is a logs API that accepts NDJSON (newline-
+    # delimited JSON). Vector's HTTP sink with `encoding.codec = json`
+    # and `framing.method = newline_delimited` matches this format.
+    #
+    # Why not metrics here?
+    # `_multi` is only for logs. Metrics must go through Prometheus
+    # Remote Write or the metrics JSON API (`/ingest/metrics/_json`).
+    # Docs: https://openobserve.ai/docs/ingestion/metrics/
+    #
+    # Auth differences:
+    # Logs API uses a static Basic Auth header. Often provided as a
+    # pre-encoded `Authorization: Basic ...` header string.
+    #
+    # Compression:
+    # Use `gzip` since it is explicitly supported by OpenObserve HTTP.
+    # Vector supports `zstd`, but OpenObserve does not guarantee support.
+    #
+    # Buffer:
+    # `when_full: block` ensures no data loss by applying backpressure.
+    # Alternative: `drop_newest` drops excess events instead of blocking.
+    oo_logs:
+      type: http
+      inputs: [ "unmangled_logs" ]
+      uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/default/_multi"
+      method: post
+      encoding:
+        codec: json
+      framing:
+        method: newline_delimited
+      request:
+        headers:
+          Authorization: "Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ=="
+          Content-Type: "application/json"
+      compression: gzip
+      buffer:
+        type: memory
+        max_events: 10000
+        when_full: drop_newest
+      healthcheck:
+        enabled: true
+        uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
 
-        # Send host metrics to OpenObserve via Prometheus Remote Write.
-        # Vector Prometheus remote_write sink docs:
-        # https://vector.dev/docs/reference/configuration/sinks/prometheus_remote_write/
-        #
-        # OpenObserve metrics ingestion docs:
-        # https://openobserve.ai/docs/ingestion/metrics/#prometheus-remote-write
-        #
-        # Why remote_write here?
-        # OpenObserve implements Prometheus Remote Write for metrics, which
-        # preserves metric types and labels. It avoids reshaping into logs.
-        #
-        # Why not `_multi`?
-        # `_multi` is logs-only. Metrics here must follow the Prometheus
-        # remote_write protocol or use the JSON API.
-        #
-        # Auth differences:
-        # Remote Write sink in Vector has structured `auth.user` and
-        # `auth.password`. This is safer than pre-encoded headers because
-        # Vector manages encoding. Both resolve to Basic Auth at runtime.
-        #
-        # Compression:
-        # `gzip` is the most widely compatible choice for remote_write.
-        #
-        # Buffer:
-        # Same behavior as logs. You may choose `drop_newest` for metrics if
-        # you prefer throughput over perfect retention (missing points is
-        # usually less critical than missing logs).
-        #
-        # Healthcheck:
-        # Disabled because remote_write has no GET health path. Vector would
-        # 405/415 against the write-only endpoint. See issue below.
-        # https://github.com/vectordotdev/vector/issues/8279
-        oo_metrics:
-            type: prometheus_remote_write
-            inputs: [ "host_metrics" ]
-            endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
-            auth:
-                strategy: basic
-                user: "admin@{{ .Environment.Values.domain }}"
-                password: "ChangeMeNow!"
-            compression: gzip
-            buffer:
-                type: memory
-                max_events: 10000
-                when_full: drop_newest
-            healthcheck:
-                enabled: false # https://github.com/vectordotdev/vector/issues/8279
+    # Send host metrics to OpenObserve via Prometheus Remote Write.
+    # Vector Prometheus remote_write sink docs:
+    # https://vector.dev/docs/reference/configuration/sinks/prometheus_remote_write/
+    #
+    # OpenObserve metrics ingestion docs:
+    # https://openobserve.ai/docs/ingestion/metrics/#prometheus-remote-write
+    #
+    # Why remote_write here?
+    # OpenObserve implements Prometheus Remote Write for metrics, which
+    # preserves metric types and labels. It avoids reshaping into logs.
+    #
+    # Why not `_multi`?
+    # `_multi` is logs-only. Metrics here must follow the Prometheus
+    # remote_write protocol or use the JSON API.
+    #
+    # Auth differences:
+    # Remote Write sink in Vector has structured `auth.user` and
+    # `auth.password`. This is safer than pre-encoded headers because
+    # Vector manages encoding. Both resolve to Basic Auth at runtime.
+    #
+    # Compression:
+    # `gzip` is the most widely compatible choice for remote_write.
+    #
+    # Buffer:
+    # Same behavior as logs. You may choose `drop_newest` for metrics if
+    # you prefer throughput over perfect retention (missing points is
+    # usually less critical than missing logs).
+    #
+    # Healthcheck:
+    # Disabled because remote_write has no GET health path. Vector would
+    # 405/415 against the write-only endpoint. See issue below.
+    # https://github.com/vectordotdev/vector/issues/8279
+    oo_metrics:
+      type: prometheus_remote_write
+      inputs: [ "host_metrics" ]
+      endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
+      auth:
+        strategy: basic
+        user: "admin@{{ .Environment.Values.domain }}"
+        password: "ChangeMeNow!"
+      compression: gzip
+      buffer:
+        type: memory
+        max_events: 10000
+        when_full: drop_newest
+      healthcheck:
+        enabled: false # https://github.com/vectordotdev/vector/issues/8279

@@ -1,6 +1,6 @@
 domain: {{ requiredEnv "DOMAIN" }}
 cloudflare:
-    adminEmail: {{ requiredEnv "CLOUDFLARE_ADMIN_EMAIL" | quote }}
-    apiToken: {{ requiredEnv "CLOUDFLARE_API_TOKEN" | quote }}
+  adminEmail: {{ requiredEnv "CLOUDFLARE_ADMIN_EMAIL" | quote }}
+  apiToken: {{ requiredEnv "CLOUDFLARE_API_TOKEN" | quote }}
 zitadel:
-    masterKey: {{ requiredEnv "ZITADEL_MASTERKEY" | quote }}
+  masterKey: {{ requiredEnv "ZITADEL_MASTERKEY" | quote }}

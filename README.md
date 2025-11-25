@@ -1,10 +1,15 @@
 # Zitadel Local Development Setup
 
-This project demonstrates how to run Zitadel locally with a complete observability stack - showing you all the bells and whistles of a modern identity platform deployment. It's a comprehensive example setup for developers who want to see how Zitadel integrates with monitoring, logging, and tracing systems in a realistic Kubernetes environment.
+This project demonstrates how to run Zitadel locally with a complete observability stack - showing you all the bells and
+whistles of a modern identity platform deployment. It's a comprehensive example setup for developers who want to see how
+Zitadel integrates with monitoring, logging, and tracing systems in a realistic Kubernetes environment.
 
-The setup includes everything you'd expect in a production Zitadel deployment: automatic TLS certificates, comprehensive telemetry collection, distributed tracing, structured logging, and metrics dashboards. While this configuration prioritizes ease of setup over production security, it provides a complete picture of how all the pieces fit together.
+The setup includes everything you'd expect in a production Zitadel deployment: automatic TLS certificates, comprehensive
+telemetry collection, distributed tracing, structured logging, and metrics dashboards. While this configuration
+prioritizes ease of setup over production security, it provides a complete picture of how all the pieces fit together.
 
 The stack demonstrates:
+
 - Zitadel's OpenTelemetry tracing integration
 - Log aggregation from Kubernetes applications
 - Metrics collection and visualization
@@ -12,19 +17,35 @@ The stack demonstrates:
 - Service mesh communication patterns
 - Database integration and monitoring
 
-This is perfect for developers evaluating Zitadel, learning about observability patterns, or building applications that need to integrate with a fully-instrumented identity provider.
+This is perfect for developers evaluating Zitadel, learning about observability patterns, or building applications that
+need to integrate with a fully-instrumented identity provider.
 
 ### Architecture
 
-This stack uses carefully selected tools that work together to provide a complete observability experience with minimal operational overhead:
+This stack uses carefully selected tools that work together to provide a complete observability experience with minimal
+operational overhead:
 
-**OpenObserve** replaces the traditional three-pillar approach (Prometheus + Jaeger + ELK stack) with a single unified backend. Unlike managing separate systems for metrics, traces, and logs, OpenObserve ingests all telemetry types through standard protocols (OTLP, Prometheus Remote Write, structured JSON). This dramatically reduces the complexity of running multiple databases, managing different query languages, and correlating data across systems. For a Zitadel demo environment, this means you get comprehensive observability without the operational burden of a full Grafana + Prometheus + Jaeger setup.
+**OpenObserve** replaces the traditional three-pillar approach (Prometheus + Jaeger + ELK stack) with a single unified
+backend. Unlike managing separate systems for metrics, traces, and logs, OpenObserve ingests all telemetry types through
+standard protocols (OTLP, Prometheus Remote Write, structured JSON). This dramatically reduces the complexity of running
+multiple databases, managing different query languages, and correlating data across systems. For a Zitadel demo
+environment, this means you get comprehensive observability without the operational burden of a full Grafana +
+Prometheus + Jaeger setup.
 
-**Traefik** handles ingress and automatic certificate management through its native ACME integration. Unlike nginx-ingress which requires separate cert-manager installations, Traefik includes built-in Let's Encrypt support with DNS-01 challenges. This means wildcard certificates and automatic renewal work out of the box with just Cloudflare API tokens. For local development with real domains, this eliminates the complexity of certificate provisioning while providing production-like TLS behavior.
+**Traefik** handles ingress and automatic certificate management through its native ACME integration. Unlike
+nginx-ingress which requires separate cert-manager installations, Traefik includes built-in Let's Encrypt support with
+DNS-01 challenges. This means wildcard certificates and automatic renewal work out of the box with just Cloudflare API
+tokens. For local development with real domains, this eliminates the complexity of certificate provisioning while
+providing production-like TLS behavior.
 
-**Vector** serves as the log collection agent because it excels at parsing and normalizing diverse log formats from Kubernetes workloads. While alternatives like Fluent Bit focus on lightweight forwarding, Vector includes powerful transformation capabilities that clean up application logs before they reach OpenObserve. The configuration includes parsers for Zitadel, etcd, Prometheus, and other common Kubernetes components, ensuring structured, searchable logs rather than raw text dumps.
+**Vector** serves as the log collection agent because it excels at parsing and normalizing diverse log formats from
+Kubernetes workloads. While alternatives like Fluent Bit focus on lightweight forwarding, Vector includes powerful
+transformation capabilities that clean up application logs before they reach OpenObserve. The configuration includes
+parsers for Zitadel, etcd, Prometheus, and other common Kubernetes components, ensuring structured, searchable logs
+rather than raw text dumps.
 
-This architecture provides a production-representative observability stack while keeping the deployment simple enough for local development and learning.
+This architecture provides a production-representative observability stack while keeping the deployment simple enough
+for local development and learning.
 
 ### Prerequisites
 
@@ -33,10 +54,12 @@ This architecture provides a production-representative observability stack while
 - kubectl configured for your cluster
 - A domain managed by Cloudflare (e.g., `test.io`, `example.com`)
 - Cloudflare API tokens with appropriate permissions:
-	- Zone API token with `Zone:Read` permissions for your domain
-	- DNS API token with `Zone:Read` and `DNS:Edit` permissions for your domain
+  - Zone API token with `Zone:Read` permissions for your domain
+  - DNS API token with `Zone:Read` and `DNS:Edit` permissions for your domain
 
-  For creating these tokens, follow the [Cloudflare API Token documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) to create custom tokens with the specific permissions listed above for your domain's zone.
+  For creating these tokens, follow
+  the [Cloudflare API Token documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+  to create custom tokens with the specific permissions listed above for your domain's zone.
 
 ### Configuration
 
@@ -51,6 +74,7 @@ Edit the `.env` file with your configuration details.
 ### Usage
 
 #### Deploy the Stack
+
 ```bash
 source .env
 make deploy
@@ -59,16 +83,20 @@ make deploy
 #### Available Make Commands
 
 **`make deploy`**
-Deploys the entire stack in dependency-aware order. First injects the Cloudflare API token into the 'prepare' release, then syncs all other releases using the dependency graph defined in helmfile.yaml.
+Deploys the entire stack in dependency-aware order. First injects the Cloudflare API token into the 'prepare' release,
+then syncs all other releases using the dependency graph defined in helmfile.yaml.
 
 **`make destroy`**
-Gracefully uninstalls all Helm releases while preserving namespaces and Persistent Volume Claims. Uses reverse dependency order to safely tear down the stack.
+Gracefully uninstalls all Helm releases while preserving namespaces and Persistent Volume Claims. Uses reverse
+dependency order to safely tear down the stack.
 
 **`make nuke`**
-Complete destructive reset - deletes all namespaces (traefik-system, monitoring, zitadel, observability) and their associated PVCs, then redeploys the entire stack. Use with caution as this removes all data.
+Complete destructive reset - deletes all namespaces (traefik-system, monitoring, zitadel, observability) and their
+associated PVCs, then redeploys the entire stack. Use with caution as this removes all data.
 
 **`make status`** (if available)
 Shows the status of all releases in the helmfile.
+
 ## Important Notes
 
 ### Host Header Requirement
@@ -99,8 +127,6 @@ kubectl port-forward -n zitadel svc/zitadel-login 3000:3000
 kubectl port-forward -n traefik-system svc/traefik 8081:8080
 # Visit: http://localhost:8081/dashboard/
 ```
-
-
 
 ## Configuration Details
 
@@ -145,7 +171,6 @@ pulumi destroy --yes
 kubectl get all -n zitadel
 kubectl get all -n traefik-system
 ```
-
 
 # Caveats
 
@@ -221,7 +246,6 @@ The current logs from etcd are like
 ```
 {"level":"info","ts":"2025-09-08T06:09:09.866107Z","caller":"etcdserver/server.go:2569","msg":"compacted Raft logs","compact-index":475052}
 ```
-
 
 #### Dashboards cannot be pre-installed
 

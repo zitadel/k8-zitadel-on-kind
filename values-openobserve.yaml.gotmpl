@@ -1,4 +1,4 @@
-# This values file deploys a single-node OpenObserve (O2) instance behind
+# This "values" file deploys a single-node OpenObserve (O2) instance behind
 # Traefik with a ClusterIP Service, a Traefik Ingress, and a Persistent
 # Volume for durability. On the first run only, O2 reads the root user
 # email and password from the environment to create the initial admin
@@ -25,67 +25,67 @@
 
 # values-openobserve.yaml
 image:
-    repository: openobserve/openobserve
-    # Pin a specific version for repeatable deployments. Review release
-    # notes before upgrading.
-    tag: v0.15.0
-    # Reuse a locally cached image if present. Otherwise pull from the
-    # registry.
-    pullPolicy: IfNotPresent
+  repository: openobserve/openobserve
+  # Pin a specific version for repeatable deployments. Review release
+  # notes before upgrading.
+  tag: v0.16.3
+  # Reuse a locally cached image if present. Otherwise, pull from the
+  # registry.
+  pullPolicy: IfNotPresent
 
 # Root user bootstrap. These variables are read on the first startup to
 # create the initial admin user. They have no effect on later restarts.
 # Manage users in the UI or via API after bootstrap.
 auth:
-    ZO_ROOT_USER_EMAIL: "admin@{{ .Environment.Values.domain }}"
-    ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set a strong real password
+  ZO_ROOT_USER_EMAIL: "admin@{{ .Environment.Values.domain }}"
+  ZO_ROOT_USER_PASSWORD: "ChangeMeNow!"   # set a strong real password
 
 # Public base URL for the UI and features that build absolute links. Use
 # the final HTTPS domain that fronts OpenObserve via Traefik.
 config:
-    ZO_WEB_URL: "https://openobserve.{{ .Environment.Values.domain }}"
+  ZO_WEB_URL: "https://openobserve.{{ .Environment.Values.domain }}"
 
 # Expose OpenObserve through Traefik. The ingress uses the "websecure"
 # entrypoint, enforces TLS, and relies on the "cf" resolver to obtain
 # certificates via ACME DNS-01. The empty tls array is intentional since
 # Traefik manages certificates dynamically.
 ingress:
-    enabled: true
-    className: traefik
-    annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        traefik.ingress.kubernetes.io/router.tls: "true"
-        traefik.ingress.kubernetes.io/router.tls.certresolver: cf
-    tls: []
-    hosts:
-        -   host: "openobserve.{{ .Environment.Values.domain }}"
-            paths:
-                -   path: /
-                    pathType: Prefix
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+  tls: [ ]
+  hosts:
+    - host: "openobserve.{{ .Environment.Values.domain }}"
+      paths:
+        - path: /
+          pathType: Prefix
 
 # Persist data so metadata, WAL, and local store survive pod restarts.
-# Size this based on expected ingestion volume and retention. For a
-# single-pod setup, ReadWriteOnce is sufficient.
+# Size is based on expected ingestion volume and retention. For a
+# single-pod setup, ReadWriteOnce is enough.
 persistence:
-    enabled: true
-    size: 20Gi
-    accessModes: [ ReadWriteOnce ]
+  enabled: true
+  size: 20Gi
+  accessModes: [ ReadWriteOnce ]
 
 # Additional environment variables for the container. Do not place the
 # ZO_ROOT_USER_* variables here since bootstrap has already handled them.
 # ZO_ROOT_ORG sets the default organization id you will use in your
 # ingestion endpoints and dashboards.
 env:
-    -   name: ZO_ROOT_ORG
-        value: "default"
+  - name: ZO_ROOT_ORG
+    value: "default"
 
 # Internal ClusterIP Service. Port 5080 serves the UI and HTTP ingestion
 # endpoints. Port 5081 serves gRPC and OTLP. If you later expose gRPC
 # externally, ensure the proxy in front supports HTTP/2 for gRPC.
 service:
-    type: ClusterIP
-    ports:
-        http:
-            port: 5080
-        grpc:
-            port: 5081
+  type: ClusterIP
+  ports:
+    http:
+      port: 5080
+    grpc:
+      port: 5081

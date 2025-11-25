@@ -1,78 +1,78 @@
 image:
-    tag: 'v4.0.2'
+  tag: 'v4.0.2'
 
 replicaCount: 2
 
 ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: 'true'
+    traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+
+login:
+  enabled: true
+  ingress:
     enabled: true
     className: traefik
     annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        traefik.ingress.kubernetes.io/router.tls: 'true'
-        traefik.ingress.kubernetes.io/router.tls.certresolver: cf
-
-login:
-    enabled: true
-    ingress:
-        enabled: true
-        className: traefik
-        annotations:
-            traefik.ingress.kubernetes.io/router.entrypoints: websecure
-            traefik.ingress.kubernetes.io/router.tls: 'true'
-            traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: 'true'
+      traefik.ingress.kubernetes.io/router.tls.certresolver: cf
 
 metrics:
-    enabled: true
-    serviceMonitor:
-        enabled: false
+  enabled: true
+  serviceMonitor:
+    enabled: false
 
 env:
-    -   name: ZITADEL_TRACING_TYPE
-        value: "otel"
-    -   name: ZITADEL_TRACING_ENDPOINT
-        value: "otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"
-    -   name: ZITADEL_TRACING_SERVICENAME
-        value: "zitadel"
-    -   name: OTEL_METRICS_EXEMPLAR_FILTER
-        value: "always_off"
-    -   name: OTEL_LOG_LEVEL
-        value: "error"
+  - name: ZITADEL_TRACING_TYPE
+    value: "otel"
+  - name: ZITADEL_TRACING_ENDPOINT
+    value: "otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+  - name: ZITADEL_TRACING_SERVICENAME
+    value: "zitadel"
+  - name: OTEL_METRICS_EXEMPLAR_FILTER
+    value: "always_off"
+  - name: OTEL_LOG_LEVEL
+    value: "error"
 
 zitadel:
-    masterkeySecretName: zitadel-masterkey
-    configmapConfig:
-        ExternalPort: 80 # Should this be 443?
-        ExternalSecure: true
-        ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
-        TLS:
-            Enabled: false
-        Database:
-            Postgres:
-                Host: 'postgres-postgresql'
-                Port: 5432
-                Database: 'zitadel'
-                User:
-                    Username: 'zitadel'
-                    Password: 'zitadel'
-                    SSL:
-                        Mode: 'disable'
-                Admin:
-                    Username: 'postgres'
-                    Password: 'postgres'
-                    SSL:
-                        Mode: 'disable'
-        FirstInstance:
-            Org:
-                Human:
-                    UserName: 'zitadel-admin'
-                    Password: 'Password1!'
-                    FirstName: 'ZITADEL'
-                    LastName: 'Admin'
-                    Email: 'admin@localhost'
-                    PasswordChangeRequired: false
-                LoginClient:
-                    Machine:
-                        Username: 'login-client'
-                        Name: 'Automatically Initialized IAM Login Client'
-                    Pat:
-                        ExpirationDate: '2029-01-01T00:00:00Z'
+  masterkeySecretName: zitadel-masterkey
+  configmapConfig:
+    ExternalPort: 80 # Should this be 443?
+    ExternalSecure: true
+    ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
+    TLS:
+      Enabled: false
+    Database:
+      Postgres:
+        Host: 'postgres-postgresql'
+        Port: 5432
+        Database: 'zitadel'
+        User:
+          Username: 'zitadel'
+          Password: 'zitadel'
+          SSL:
+            Mode: 'disable'
+        Admin:
+          Username: 'postgres'
+          Password: 'postgres'
+          SSL:
+            Mode: 'disable'
+    FirstInstance:
+      Org:
+        Human:
+          UserName: 'zitadel-admin'
+          Password: 'Password1!'
+          FirstName: 'ZITADEL'
+          LastName: 'Admin'
+          Email: 'admin@localhost'
+          PasswordChangeRequired: false
+        LoginClient:
+          Machine:
+            Username: 'login-client'
+            Name: 'Automatically Initialized IAM Login Client'
+          Pat:
+            ExpirationDate: '2029-01-01T00:00:00Z'

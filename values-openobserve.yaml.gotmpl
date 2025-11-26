@@ -33,6 +33,12 @@ image:
   # registry.
   pullPolicy: IfNotPresent
 
+# Override the default naming to simplify resource names. This removes the
+# "-standalone" suffix from pods and services, making logs and monitoring
+# clearer.
+nameOverride: "openobserve"
+fullnameOverride: "openobserve"
+
 # Root user bootstrap. These variables are read on the first startup to
 # create the initial admin user. They have no effect on later restarts.
 # Manage users in the UI or via API after bootstrap.

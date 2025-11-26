@@ -96,7 +96,7 @@ config:
     #debug:
     #    verbosity: basic
     otlphttp/o2:
-      endpoint: http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default
+      endpoint: http://openobserve.observability.svc.cluster.local:5080/api/default
       headers:
         Authorization: Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ==
         organization: default
@@ -116,7 +116,7 @@ config:
               exporter:
                 otlp:
                   protocol: http/protobuf
-                  endpoint: http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/v1/metrics
+                  endpoint: http://openobserve.observability.svc.cluster.local:5080/api/default/v1/metrics
                   headers:
                     Authorization: Basic YWRtaW5AZGV2Lm1yaWRhLm5nOkNoYW5nZU1lTm93IQ==
                     organization: default

@@ -165,7 +165,7 @@ customConfig:
     oo_logs:
       type: http
       inputs: [ "unmangled_logs" ]
-      uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/default/_multi"
+      uri: "http://openobserve.observability.svc.cluster.local:5080/api/default/default/_multi"
       method: post
       encoding:
         codec: json
@@ -182,7 +182,7 @@ customConfig:
         when_full: drop_newest
       healthcheck:
         enabled: true
-        uri: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/healthz"
+        uri: "http://openobserve.observability.svc.cluster.local:5080/healthz"
 
     # Send host metrics to OpenObserve via Prometheus Remote Write.
     # Vector Prometheus remote_write sink docs:
@@ -220,6 +220,7 @@ customConfig:
       type: prometheus_remote_write
       inputs: [ "host_metrics" ]
       endpoint: "http://openobserve-openobserve-standalone.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
+      endpoint: "http://openobserve.observability.svc.cluster.local:5080/api/default/prometheus/api/v1/write"
       auth:
         strategy: basic
         user: "admin@{{ .Environment.Values.domain }}"

@@ -39,7 +39,7 @@ extraVolumeMounts:
 # For production, "info" is recommended to reduce verbosity.
 env:
   - name: VECTOR_LOG
-    value: "info"
+    value: "warn"
 
 # Disable service to avoid port issues
 service:
@@ -243,7 +243,6 @@ customConfig:
         strategy: basic
         user: "admin@{{ .Environment.Values.domain }}"
         password: "ChangeMeNow!"
-      compression: gzip
       buffer:
         type: memory
         max_events: 10000

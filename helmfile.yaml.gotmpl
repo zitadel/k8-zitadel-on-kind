@@ -106,7 +106,7 @@ repositories:
 releases:
   # Sets up prerequisite resources for the entire stack.
   - name: prepare
-    namespace: traefik-system
+    namespace: ingress
     chart: ./charts/prepare
     values:
       - {{ toYaml .Environment.Values | nindent 14 }}
@@ -115,42 +115,42 @@ releases:
 
   # Deploys MetalLB for LoadBalancer support in Kind.
   - name: metallb
-    namespace: metallb-system
+    namespace: networking
     chart: metallb/metallb
     version: 0.15.2
     needs:
-      - traefik-system/prepare
+      - ingress/prepare
     labels:
       phase: operators
 
   # Deploys Traefik, the Ingress Controller and reverse proxy.
   - name: traefik
-    namespace: traefik-system
+    namespace: ingress
     chart: traefik/traefik
     version: 37.0.0
     values:
       - values/values-traefik.yaml.gotmpl
     needs:
-      - traefik-system/prepare
-      - metallb-system/metallb
+      - ingress/prepare
+      - networking/metallb
     labels:
       phase: operators
 
   # Deploys MetalLB IPAddressPool and L2Advertisement configuration.
   - name: metallb-config
-    namespace: metallb-system
+    namespace: networking
     chart: ./charts/metallb-config
     needs:
-      - metallb-system/metallb
+      - networking/metallb
     labels:
       phase: crd-objects
 
   # Deploys global Middleware custom resources used by Traefik.
   - name: traefik-mw
-    namespace: traefik-system
+    namespace: ingress
     chart: ./charts/traefik-mw
     needs:
-      - traefik-system/traefik
+      - ingress/traefik
     labels:
       phase: crd-objects
 
@@ -171,7 +171,7 @@ releases:
     values:
       - values/values-openobserve.yaml.gotmpl
     needs:
-      - traefik-system/traefik
+      - ingress/traefik
     labels:
       phase: apps
 
@@ -182,7 +182,7 @@ releases:
     values:
       - values/values-otelcol.yaml.gotmpl
     needs:
-      - traefik-system/traefik
+      - ingress/traefik
       - observability/openobserve
     labels:
       phase: apps
@@ -195,7 +195,7 @@ releases:
     values:
       - values/values-zitadel.yaml.gotmpl
     needs:
-      - traefik-system/traefik
+      - ingress/traefik
       - zitadel/postgres
       - monitoring/otelcol
     labels:

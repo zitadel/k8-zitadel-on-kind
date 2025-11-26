@@ -145,9 +145,9 @@ ports:
 additionalArguments:
   # Attach a compression middleware to the HTTP entrypoint. This reduces
   # response sizes for eligible content.
-  - '--entrypoints.web.http.middlewares=traefik-system-compress@kubernetescrd'
+  - '--entrypoints.web.http.middlewares=ingress-compress@kubernetescrd'
   # Attach the same compression middleware to the HTTPS entrypoint.
-  - '--entrypoints.websecure.http.middlewares=traefik-system-compress@kubernetescrd'
+  - '--entrypoints.websecure.http.middlewares=ingress-compress@kubernetescrd'
   # ACME account email used for certificate authority notifications.
   - '--certificatesresolvers.cf.acme.email={{ .Environment.Values.cloudflare.adminEmail }}'
   # File path for ACME data such as acme.json. This is inside the PVC.

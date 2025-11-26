@@ -129,7 +129,7 @@ releases:
     chart: traefik/traefik
     version: 37.0.0
     values:
-      - values-traefik.yaml.gotmpl
+      - values/values-traefik.yaml.gotmpl
     needs:
       - traefik-system/prepare
       - metallb-system/metallb
@@ -160,7 +160,7 @@ releases:
     chart: bitnami/postgresql
     version: 12.10.0
     values:
-      - values-postgres.yaml.gotmpl
+      - values/values-postgres.yaml.gotmpl
     labels:
       phase: storage
 
@@ -169,7 +169,7 @@ releases:
     namespace: observability
     chart: openobserve/openobserve-standalone
     values:
-      - values-openobserve.yaml.gotmpl
+      - values/values-openobserve.yaml.gotmpl
     needs:
       - traefik-system/traefik
     labels:
@@ -180,7 +180,7 @@ releases:
     namespace: monitoring
     chart: open-telemetry/opentelemetry-collector
     values:
-      - values-otelcol.yaml.gotmpl
+      - values/values-otelcol.yaml.gotmpl
     needs:
       - traefik-system/traefik
       - observability/openobserve
@@ -193,7 +193,7 @@ releases:
     chart: zitadel/zitadel
     version: 9.12.2
     values:
-      - values-zitadel.yaml.gotmpl
+      - values/values-zitadel.yaml.gotmpl
     needs:
       - traefik-system/traefik
       - zitadel/postgres
@@ -207,7 +207,7 @@ releases:
     chart: vector/vector
     version: 0.45.0
     values:
-      - values-vector.yaml.gotmpl
+      - values/values-vector.yaml.gotmpl
     needs:
       - observability/openobserve
     labels:

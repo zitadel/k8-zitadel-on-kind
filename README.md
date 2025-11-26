@@ -1,252 +1,176 @@
-# Zitadel Local Development Setup
+# Zitadel on Kubernetes Reference Architecture
 
-This project demonstrates how to run Zitadel locally with a complete observability stack - showing you all the bells and
-whistles of a modern identity platform deployment. It's a comprehensive example setup for developers who want to see how
-Zitadel integrates with monitoring, logging, and tracing systems in a realistic Kubernetes environment.
+A demo deployment of Zitadel with comprehensive observability, demonstrating how to run a modern
+identity platform on Kubernetes with automatic TLS, distributed tracing, structured logging, and metrics collection.
 
-The setup includes everything you'd expect in a production Zitadel deployment: automatic TLS certificates, comprehensive
-telemetry collection, distributed tracing, structured logging, and metrics dashboards. While this configuration
-prioritizes ease of setup over production security, it provides a complete picture of how all the pieces fit together.
+⚠️ **This is a demonstration setup optimized for local development and learning.** It uses trust authentication for
+PostgreSQL, default passwords, and disabled TLS for convenience. Production deployments require proper authentication,
+secret management, network policies, high availability configuration, and operational best practices like backups,
+monitoring, and security hardening.
 
-The stack demonstrates:
-
-- Zitadel's OpenTelemetry tracing integration
-- Log aggregation from Kubernetes applications
-- Metrics collection and visualization
-- Automatic certificate management
-- Service mesh communication patterns
-- Database integration and monitoring
-
-This is perfect for developers evaluating Zitadel, learning about observability patterns, or building applications that
-need to integrate with a fully-instrumented identity provider.
+While optimized for local development on Kind, the architecture mirrors production patterns: Traefik with ACME DNS-01
+for TLS, OpenTelemetry for distributed tracing, unified observability with OpenObserve, and structured log collection
+with Vector.
 
 ### Architecture
 
-This stack uses carefully selected tools that work together to provide a complete observability experience with minimal
-operational overhead:
+This demonstration is built with carefully selected components that balance simplicity, functionality, and production
+relevance. Each component was chosen to minimize operational complexity while showcasing realistic patterns for identity
+management, observability, and infrastructure automation.
 
-**OpenObserve** replaces the traditional three-pillar approach (Prometheus + Jaeger + ELK stack) with a single unified
-backend. Unlike managing separate systems for metrics, traces, and logs, OpenObserve ingests all telemetry types through
-standard protocols (OTLP, Prometheus Remote Write, structured JSON). This dramatically reduces the complexity of running
-multiple databases, managing different query languages, and correlating data across systems. For a Zitadel demo
-environment, this means you get comprehensive observability without the operational burden of a full Grafana +
-Prometheus + Jaeger setup.
+**[OpenObserve](https://openobserve.ai/)** replaces the traditional three-pillar approach (Prometheus + Jaeger + ELK)
+with a unified backend. Instead of managing separate systems for metrics, traces, and logs, OpenObserve ingests all
+telemetry through standard
+protocols ([OTLP](https://opentelemetry.io/docs/specs/otlp/), [Prometheus Remote Write](https://prometheus.io/docs/concepts/remote_write_spec/),
+JSON). This eliminates the operational complexity of running multiple databases, learning different query languages, and
+correlating data across systems.
 
-**Traefik** handles ingress and automatic certificate management through its native ACME integration. Unlike
-nginx-ingress which requires separate cert-manager installations, Traefik includes built-in Let's Encrypt support with
-DNS-01 challenges. This means wildcard certificates and automatic renewal work out of the box with just Cloudflare API
-tokens. For local development with real domains, this eliminates the complexity of certificate provisioning while
-providing production-like TLS behavior.
+**[Traefik](https://traefik.io/)** handles ingress and automatic certificate management through
+native [ACME integration](https://doc.traefik.io/traefik/https/acme/). Unlike nginx-ingress requiring separate
+cert-manager installations, Traefik includes built-in Let's Encrypt support
+with [DNS-01 challenges](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge). Wildcard certificates and
+automatic renewal work out of the box with Cloudflare API tokens, providing production-like TLS without provisioning
+complexity.
 
-**Vector** serves as the log collection agent because it excels at parsing and normalizing diverse log formats from
-Kubernetes workloads. While alternatives like Fluent Bit focus on lightweight forwarding, Vector includes powerful
-transformation capabilities that clean up application logs before they reach OpenObserve. The configuration includes
-parsers for Zitadel, etcd, Prometheus, and other common Kubernetes components, ensuring structured, searchable logs
-rather than raw text dumps.
+**[Vector](https://vector.dev/)** collects and transforms logs from Kubernetes workloads. While alternatives like Fluent
+Bit focus on lightweight forwarding, Vector includes
+powerful [transformation capabilities](https://vector.dev/docs/reference/configuration/transforms/) that normalize
+diverse log formats before ingestion. The configuration includes parsers for Zitadel, etcd, Prometheus, and other
+Kubernetes components, ensuring structured, searchable logs.
 
-This architecture provides a production-representative observability stack while keeping the deployment simple enough
-for local development and learning.
+**[OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)** aggregates telemetry from all
+sources. [Zitadel exports traces](https://zitadel.com/docs/self-hosting/manage/configure/tracing) directly to OTel
+Collector, which forwards to OpenObserve. The collector
+also [scrapes Prometheus metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver)
+from annotated pods and services, providing a single pipeline for all telemetry.
+
+**[MetalLB](https://metallb.universe.tf/)** provides LoadBalancer services in bare-metal and local Kubernetes
+environments like Kind. Without MetalLB, services with `type: LoadBalancer` remain in pending state. MetalLB assigns IP
+addresses from a configured pool and announces them via [Layer 2 mode](https://metallb.universe.tf/concepts/layer2/) or
+BGP, enabling Traefik to expose services externally.
+
+**PostgreSQL** deployment uses
+the [Bitnami PostgreSQL Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) for simplicity in
+this demonstration. For production deployments, consider [CloudNativePG](https://cloudnative-pg.io/), the recommended
+Kubernetes-native operator for PostgreSQL. With Bitnami charts being deprecated, CloudNativePG provides modern
+declarative configuration, automated backups, high availability, and better integration with Kubernetes primitives.
+
+## Usage
 
 ### Prerequisites
 
-- Kubernetes cluster (tested with Docker Desktop)
-- Helmfile CLI installed
-- kubectl configured for your cluster
-- A domain managed by Cloudflare (e.g., `test.io`, `example.com`)
-- Cloudflare API tokens with appropriate permissions:
-  - Zone API token with `Zone:Read` permissions for your domain
-  - DNS API token with `Zone:Read` and `DNS:Edit` permissions for your domain
+You
+need [Kind](https://kind.sigs.k8s.io/), [Helmfile](https://helmfile.readthedocs.io/), [kubectl](https://kubernetes.io/docs/tasks/tools/),
+and [Docker](https://docs.docker.com/get-docker/) installed. Kind creates a local Kubernetes cluster, Helmfile manages
+the deployment, kubectl provides CLI access, and Docker runs the containers.
 
-  For creating these tokens, follow
-  the [Cloudflare API Token documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
-  to create custom tokens with the specific permissions listed above for your domain's zone.
+You also need a domain managed by Cloudflare with API tokens for DNS automation. Create two tokens: one with `Zone:Read`
+permission, another with `Zone:Read` and `DNS:Edit` permissions.
+Follow [Cloudflare's token creation guide](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+to create scoped tokens for your domain.
 
-### Configuration
+💡 **Note:** This setup uses real domains with DNS-01 ACME challenges instead of localhost or `/etc/hosts` modifications.
+Real domains let you test production certificate workflows, verify DNS propagation behavior, access services from any
+device on your network, and integrate with external webhooks or mobile apps.
 
-Copy the example environment file and update it with your specific values:
+### Creating the Cluster
+
+Create a Kind cluster with the provided configuration. This sets up port mappings for HTTP (80) and HTTPS (443).
+
+```bash
+kind create cluster --config etc/kind.yaml
+```
+
+### Deploying
+
+Copy the example environment file and edit it with your configuration.
 
 ```bash
 cp .env.example .env
 ```
 
-Edit the `.env` file with your configuration details.
+Set these values in `.env`:
 
-### Usage
+```bash
+CLOUDFLARE_ADMIN_EMAIL=admin@example.com
+CLOUDFLARE_API_TOKEN=your-token-here
+DOMAIN=dev.example.com
+ZITADEL_MASTERKEY=0123456789abcdef0123456789abcdef  # 32 chars, cannot be changed later
+```
 
-#### Deploy the Stack
+Deploy the stack:
 
 ```bash
 source .env
 make deploy
 ```
 
-#### Available Make Commands
+First deployment takes 5-10 minutes to pull images, provision LoadBalancer IPs, obtain TLS certificates, initialize
+PostgreSQL, and bootstrap Zitadel.
 
-**`make deploy`**
-Deploys the entire stack in dependency-aware order. First injects the Cloudflare API token into the 'prepare' release,
-then syncs all other releases using the dependency graph defined in helmfile.yaml.
+### Accessing the Traefik Dashboard
 
-**`make destroy`**
-Gracefully uninstalls all Helm releases while preserving namespaces and Persistent Volume Claims. Uses reverse
-dependency order to safely tear down the stack.
+Traefik dashboard is available at `https://traefik.${DOMAIN}` with no credentials required. Use it to view all
+registered ingresses and routes for debugging purposes.
 
-**`make nuke`**
-Complete destructive reset - deletes all namespaces (traefik-system, monitoring, zitadel, observability) and their
-associated PVCs, then redeploys the entire stack. Use with caution as this removes all data.
+### Viewing Telemetry
 
-**`make status`** (if available)
-Shows the status of all releases in the helmfile.
+Access OpenObserve at `https://openobserve.${DOMAIN}` with email `admin@${DOMAIN}` and password `ChangeMeNow!`. Zitadel
+and Traefik export traces to OTel Collector, which forwards them to OpenObserve. Vector collects and parses logs from
+all pods (including Zitadel, Traefik, etcd, and OTel Collector) before sending to OpenObserve. OTel Collector also
+scrapes Prometheus metrics from annotated pods and services. View traces, logs, and metrics in their respective
+OpenObserve sections. Filter traces by `service.name="zitadel"`, logs by `kubernetes_namespace="zitadel"`, and query
+metrics with PromQL.
 
-## Important Notes
+### Accessing Zitadel
 
-### Host Header Requirement
+Zitadel console is at `https://zitadel.${DOMAIN}/ui/console` with username `zitadel-admin@zitadel.localhost` and
+password `Password1!`. Change this password immediately after first login.
 
-The ingresses are configured for `Host: localhost`. Access must be via:
+### Cleanup
 
-- `http://localhost` (works automatically)
-- NOT `http://172.20.0.5` (will timeout due to host header mismatch)
-
-### Login Process
-
-1. Navigate to: `http://localhost/ui/console?login_hint=zitadel-admin@zitadel.localhost`
-2. Enter password: `Password1!`
-3. Access the Zitadel management console
-
-### Service Access (for debugging)
+Remove all Helm releases while preserving namespaces and PVCs:
 
 ```bash
-# Direct access to Zitadel
-kubectl port-forward -n zitadel svc/zitadel 8080:8080
-# Visit: http://localhost:8080
-
-# Direct access to Login service
-kubectl port-forward -n zitadel svc/zitadel-login 3000:3000
-# Visit: http://localhost:3000
-
-# Traefik dashboard
-kubectl port-forward -n traefik-system svc/traefik 8081:8080
-# Visit: http://localhost:8081/dashboard/
+make destroy
 ```
 
-## Configuration Details
-
-### Traefik Configuration
-
-- Service type: LoadBalancer (works with Docker Desktop)
-- RBAC enabled for cross-namespace access
-- Default ingress class enabled
-
-### Zitadel Configuration
-
-- External domain: `localhost`
-- External port: 80
-- TLS disabled (for local development)
-- PostgreSQL backend with insecure connection
-- FirstInstance admin user auto-created
-
-### PostgreSQL Configuration
-
-- Trust authentication enabled (`host all all all trust`)
-- Dedicated database and user for Zitadel
-- Persistent storage via StatefulSet
-
-## Security Notes
-
-⚠️ **This configuration is for LOCAL DEVELOPMENT ONLY**
-
-- PostgreSQL uses trust authentication
-- TLS is disabled
-- Default passwords are used
-- No network policies or security restrictions
-
-For production deployment, enable TLS, use proper authentication, and follow security best practices.
-
-## Clean Up
+Complete teardown including all namespaces and data:
 
 ```bash
-# Remove all resources
-pulumi destroy --yes
-
-# Verify cleanup
-kubectl get all -n zitadel
-kubectl get all -n traefik-system
+make nuke
 ```
 
-# Caveats
+Delete the entire Kind cluster:
 
-#### Not many metrics
-
-Zitadel does not expose any custom metrics. This can be checked the following command
-
-```
-kubectl run curl-test --rm -i --tty --restart=Never --image=curlimages/curl -n zitadel -- curl -s http://zitadel:8080/debug/metrics | grep "^# HELP" | awk '{print $3}' | sort
+```bash
+kind delete cluster
 ```
 
-```
-➜ kubectl run curl-test --rm -i --tty --restart=Never --image=curlimages/curl -n zitadel -- curl -s http://zitadel:8080/debug/metrics | grep "^# HELP" | awk '{print $3}' | sort
-go_gc_duration_seconds
-go_gc_gogc_percent
-go_gc_gomemlimit_bytes
-go_goroutines
-go_info
-go_memstats_alloc_bytes
-go_memstats_alloc_bytes_total
-go_memstats_buck_hash_sys_bytes
-go_memstats_frees_total
-go_memstats_gc_sys_bytes
-go_memstats_heap_alloc_bytes
-go_memstats_heap_idle_bytes
-go_memstats_heap_inuse_bytes
-go_memstats_heap_objects
-go_memstats_heap_released_bytes
-go_memstats_heap_sys_bytes
-go_memstats_last_gc_time_seconds
-go_memstats_mallocs_total
-go_memstats_mcache_inuse_bytes
-go_memstats_mcache_sys_bytes
-go_memstats_mspan_inuse_bytes
-go_memstats_mspan_sys_bytes
-go_memstats_next_gc_bytes
-go_memstats_other_sys_bytes
-go_memstats_stack_inuse_bytes
-go_memstats_stack_sys_bytes
-go_memstats_sys_bytes
-go_sched_gomaxprocs_threads
-go_threads
-grpc_server_grpc_status_code_total
-grpc_server_request_counter_total
-grpc_server_total_request_counter_total
-process_cpu_seconds_total
-process_max_fds
-process_network_receive_bytes_total
-process_network_transmit_bytes_total
-process_open_fds
-process_resident_memory_bytes
-process_start_time_seconds
-process_virtual_memory_bytes
-process_virtual_memory_max_bytes
-projection_events_processed_total
-promhttp_metric_handler_requests_in_flight
-promhttp_metric_handler_requests_total
-target_info
-```
+## Known Issues and Caveats
 
-#### ETCD logs messy logs
+### OpenObserve Dashboard Limitations
 
-https://github.com/etcd-io/etcd/issues/13295
+OpenObserve does not currently support pre-installed dashboards via configuration. Dashboards must be created through
+the UI after deployment.
 
-Once docker desktop switches to 3.6 then we can ditcha that grok hell
+Tracking issue: https://github.com/openobserve/openobserve/issues/7073
 
-➜ kubectl describe pod etcd-desktop-control-plane -n kube-system | grep Image:
+## Contributing
 
-    Image:         registry.k8s.io/etcd:3.5.21-0
+This is a reference architecture for learning and evaluation. For production deployments, fork and adapt to your
+requirements.
 
-The current logs from etcd are like
+## Resources
 
-```
-{"level":"info","ts":"2025-09-08T06:09:09.866107Z","caller":"etcdserver/server.go:2569","msg":"compacted Raft logs","compact-index":475052}
-```
+- [Zitadel Documentation](https://zitadel.com/docs)
+- [Zitadel Helm Charts](https://github.com/zitadel/zitadel-charts)
+- [Traefik Documentation](https://doc.traefik.io/traefik/)
+- [OpenObserve Documentation](https://openobserve.ai/docs/)
+- [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
+- [Vector Documentation](https://vector.dev/docs/)
+- [Helmfile Documentation](https://helmfile.readthedocs.io/)
 
-#### Dashboards cannot be pre-installed
+## License
 
-https://github.com/openobserve/openobserve/issues/7073
+Apache 2.0

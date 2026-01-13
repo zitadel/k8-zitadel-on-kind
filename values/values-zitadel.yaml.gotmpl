@@ -21,6 +21,9 @@ login:
       traefik.ingress.kubernetes.io/router.tls: 'true'
       traefik.ingress.kubernetes.io/router.tls.certresolver: cf
 
+cleanupJob:
+  enabled: true
+
 metrics:
   enabled: true
   serviceMonitor:

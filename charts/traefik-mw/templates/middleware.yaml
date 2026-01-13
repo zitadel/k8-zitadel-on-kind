@@ -5,3 +5,15 @@ metadata:
   namespace: ingress
 spec:
   compress: { }
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: disable-hsts
+  namespace: ingress
+spec:
+  headers:
+    # Override/strip Strict-Transport-Security from backend responses.
+    customResponseHeaders:
+      Strict-Transport-Security: ""

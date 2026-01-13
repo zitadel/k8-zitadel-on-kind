@@ -39,6 +39,10 @@ deployment:
   # and ensure ACME storage is shared across pods.
   replicas: 1
 
+providers:
+  kubernetesCRD:
+    allowCrossNamespace: true
+
 persistence:
   # A PersistentVolumeClaim is used for durable state like acme.json.
   enabled: true
@@ -143,11 +147,9 @@ ports:
     protocol: TCP
 
 additionalArguments:
-  # Attach a compression middleware to the HTTP entrypoint. This reduces
-  # response sizes for eligible content.
-  - '--entrypoints.web.http.middlewares=ingress-compress@kubernetescrd'
-  # Attach the same compression middleware to the HTTPS entrypoint.
-  - '--entrypoints.websecure.http.middlewares=ingress-compress@kubernetescrd'
+  # Attach compression and HSTS stripping globally on both entrypoints.
+  - '--entrypoints.web.http.middlewares=ingress-compress@kubernetescrd,ingress-disable-hsts@kubernetescrd'
+  - '--entrypoints.websecure.http.middlewares=ingress-compress@kubernetescrd,ingress-disable-hsts@kubernetescrd'
   # ACME account email used for certificate authority notifications.
   - '--certificatesresolvers.cf.acme.email={{ .Environment.Values.cloudflare.adminEmail }}'
   # File path for ACME data such as acme.json. This is inside the PVC.

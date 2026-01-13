@@ -127,7 +127,7 @@ releases:
   - name: traefik
     namespace: ingress
     chart: traefik/traefik
-    version: 37.0.0
+    version: 38.0.2
     values:
       - values/values-traefik.yaml.gotmpl
     needs:
@@ -192,6 +192,7 @@ releases:
     namespace: zitadel
     chart: zitadel/zitadel
     version: 9.12.2
+    timeout: 1800
     values:
       - values/values-zitadel.yaml.gotmpl
     needs:

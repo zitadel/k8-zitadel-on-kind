@@ -17,3 +17,15 @@ spec:
     # Override/strip Strict-Transport-Security from backend responses.
     customResponseHeaders:
       Strict-Transport-Security: ""
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: login-redirect
+  namespace: ingress
+spec:
+  redirectRegex:
+    regex: '{{ printf "^https?://zitadel\\.%s/ui/(?:v2/)?login(.*)" (replace "." "\\." .Values.domain) }}'
+    replacement: 'https://login.{{ .Values.domain }}/ui/v2/login$1'
+    permanent: true

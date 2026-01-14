@@ -149,6 +149,8 @@ releases:
   - name: traefik-mw
     namespace: ingress
     chart: ./charts/traefik-mw
+    values:
+      - domain: {{ .Environment.Values.domain }}
     needs:
       - ingress/traefik
     labels:

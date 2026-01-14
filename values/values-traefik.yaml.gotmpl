@@ -163,3 +163,7 @@ additionalArguments:
   # Make "cf" the default resolver for the websecure entrypoint so new
   # TLS routes get certificates automatically.
   - '--entrypoints.websecure.http.tls.certresolver=cf'
+  # Redirect all HTTP traffic to HTTPS so plain HTTP requests do not
+  # 404 when routes are only on websecure.
+  - '--entrypoints.web.http.redirections.entryPoint.to=websecure'
+  - '--entrypoints.web.http.redirections.entryPoint.scheme=https'

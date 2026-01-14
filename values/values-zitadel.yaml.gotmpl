@@ -1,5 +1,6 @@
 image:
-  tag: 'v4.0.2'
+  repository: ghcr.io/zitadel/zitadel
+  tag: 'b59794eb11e859a18f322c047c7ddfde57139632'
 
 replicaCount: 2
 
@@ -10,6 +11,11 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: 'true'
     traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+  hosts:
+    - host: "zitadel.{{ .Environment.Values.domain }}"
+      paths:
+        - path: /
+          pathType: Prefix
 
 login:
   enabled: true
@@ -20,6 +26,20 @@ login:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: 'true'
       traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+      traefik.ingress.kubernetes.io/router.middlewares: ingress-login-redirect@kubernetescrd
+    hosts:
+      - host: "login.{{ .Environment.Values.domain }}"
+        paths:
+          - path: /ui/v2/login
+            pathType: Prefix
+          - path: /ui/login
+            pathType: Prefix
+      - host: "zitadel.{{ .Environment.Values.domain }}"
+        paths:
+          - path: /ui/v2/login
+            pathType: Prefix
+          - path: /ui/login
+            pathType: Prefix
 
 cleanupJob:
   enabled: true
@@ -65,6 +85,9 @@ zitadel:
           SSL:
             Mode: 'disable'
     FirstInstance:
+      TrustedDomains:
+        - "zitadel.{{ .Environment.Values.domain }}"
+        - "login.{{ .Environment.Values.domain }}"
       Org:
         Human:
           UserName: 'zitadel-admin'

@@ -67,11 +67,11 @@ zitadel:
     FirstInstance:
       Org:
         Human:
-          UserName: 'zitadel-admin'
+          UserName: 'admin'
           Password: 'Password1!'
           FirstName: 'ZITADEL'
           LastName: 'Admin'
-          Email: 'admin@localhost'
+          Email: 'admin@zitadel.zitadel.{{ .Environment.Values.domain }}'
           PasswordChangeRequired: false
         LoginClient:
           Machine:

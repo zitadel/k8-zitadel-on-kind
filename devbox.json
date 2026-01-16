@@ -8,7 +8,14 @@
     "kind@latest"
   ],
   "env": {
-    "KUBECONFIG": "$PWD/.kube/config"
+    "KUBECONFIG": "${DEVBOX_PROJECT_ROOT}/.kube/config",
+    "HELM_CACHE_HOME": "${DEVBOX_PROJECT_ROOT}/.helm/cache",
+    "HELM_CONFIG_HOME": "${DEVBOX_PROJECT_ROOT}/.helm/config",
+    "HELM_DATA_HOME": "${DEVBOX_PROJECT_ROOT}/.helm/data",
+    "HELM_REPOSITORY_CACHE": "${DEVBOX_PROJECT_ROOT}/.helm/cache/repository",
+    "HELM_REPOSITORY_CONFIG": "${DEVBOX_PROJECT_ROOT}/.helm/config/repositories.yaml",
+    "HELM_REGISTRY_CONFIG": "${DEVBOX_PROJECT_ROOT}/.helm/config/registry/config.json",
+    "HELM_COLOR": "1"
   },
   "shell": {
     "init_hook": [

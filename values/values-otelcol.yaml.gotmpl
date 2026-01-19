@@ -1,7 +1,8 @@
 mode: deployment
 
 image:
-  repository: otel/opentelemetry-collector
+  # Use contrib image for transform processor support
+  repository: otel/opentelemetry-collector-contrib
   tag: "0.133.0"
   pullPolicy: IfNotPresent
 
@@ -91,6 +92,46 @@ config:
       check_interval: 5s
       limit_percentage: 80
       spike_limit_percentage: 25
+    # Filter out noisy asset/static file traces
+    filter/assets:
+      error_mode: ignore
+      traces:
+        span:
+          # Filter by file extension
+          - IsMatch(attributes["url.path"], ".*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$")
+          - IsMatch(attributes["http.target"], ".*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$")
+          - IsMatch(attributes["url.full"], ".*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$")
+          # Filter by asset paths
+          - IsMatch(attributes["url.path"], "^/_next/.*")
+          - IsMatch(attributes["url.path"], "^/assets/.*")
+          - IsMatch(attributes["url.path"], "^/static/.*")
+          - IsMatch(attributes["http.target"], "^/_next/.*")
+          - IsMatch(attributes["http.target"], "^/assets/.*")
+          - IsMatch(attributes["http.target"], "^/static/.*")
+          - IsMatch(attributes["url.full"], ".*/assets/.*")
+          - IsMatch(attributes["url.full"], ".*/_next/.*")
+          - IsMatch(attributes["url.full"], ".*/static/.*")
+          # Filter health/metrics/ping endpoints
+          - IsMatch(attributes["url.path"], "^/(ping|health|healthz|ready|readyz|live|livez|metrics)$")
+          - IsMatch(attributes["http.target"], "^/(ping|health|healthz|ready|readyz|live|livez|metrics)$")
+          - IsMatch(attributes["url.full"], ".*/(ping|health|healthz|ready|readyz|live|livez|metrics)$")
+          - IsMatch(attributes["url.path"], "^/debug/(healthz|ready|metrics)$")
+          - IsMatch(attributes["http.target"], "^/debug/(healthz|ready|metrics)$")
+          - IsMatch(attributes["url.full"], ".*/debug/(healthz|ready|metrics)$")
+    # Transform Traefik spans to include the URL path in the span name
+    # Changes "POST" to "POST /path/to/endpoint" for better visibility
+    transform:
+      trace_statements:
+        - context: span
+          statements:
+            # New OTEL semantic convention: http.request.method + url.path
+            - set(name, Concat([name, " ", attributes["url.path"]], "")) where attributes["url.path"] != nil and name == attributes["http.request.method"]
+            # Old OTEL semantic convention: http.method + url.path
+            - set(name, Concat([name, " ", attributes["url.path"]], "")) where attributes["url.path"] != nil and name == attributes["http.method"]
+            # Fallback: http.target with new convention
+            - set(name, Concat([name, " ", attributes["http.target"]], "")) where attributes["http.target"] != nil and name == attributes["http.request.method"]
+            # Fallback: http.target with old convention
+            - set(name, Concat([name, " ", attributes["http.target"]], "")) where attributes["http.target"] != nil and name == attributes["http.method"]
 
   exporters:
     #debug:
@@ -125,7 +166,7 @@ config:
     pipelines:
       traces:
         receivers: [ otlp ]
-        processors: [ batch ]
+        processors: [ filter/assets, transform, batch ]
         exporters: [ otlphttp/o2 ]
 
       metrics:

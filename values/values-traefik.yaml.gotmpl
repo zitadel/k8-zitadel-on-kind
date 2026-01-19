@@ -106,6 +106,8 @@ metrics:
       content_type: "Content-Type"
 
 tracing:
+  # Add the router/service labels to span names for better identification
+  addInternals: true
   otlp:
     # This enables distributed tracing export via OTLP.
     enabled: true
@@ -115,6 +117,13 @@ tracing:
       # This is the OTLP traces endpoint for your collector. Traefik
       # sends spans here. Ensure the collector accepts this path.
       endpoint: http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
+  # Capture request headers as span attributes for debugging
+  capturedRequestHeaders:
+    - "Content-Type"
+    - "X-Forwarded-Host"
+  # Capture response headers as span attributes
+  capturedResponseHeaders:
+    - "Content-Type"
 
 ports:
   web:

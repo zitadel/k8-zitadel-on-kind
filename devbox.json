@@ -5,7 +5,8 @@
     "kubernetes-helm@latest",
     "helmfile@latest",
     "kubernetes-helmPlugins.helm-diff@latest",
-    "kind@latest"
+    "kind@latest",
+    "grpcurl@latest"
   ],
   "env": {
     "KUBECONFIG": "${DEVBOX_PROJECT_ROOT}/.kube/config",

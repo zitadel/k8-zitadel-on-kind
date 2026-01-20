@@ -4,3 +4,7 @@ cloudflare:
   apiToken: {{ requiredEnv "CLOUDFLARE_API_TOKEN" | quote }}
 zitadel:
   masterKey: {{ requiredEnv "ZITADEL_MASTERKEY" | quote }}
+  systemUser:
+    id: {{ requiredEnv "ZITADEL_SYSTEMUSER_ID" | quote }}
+    privateKey: {{ requiredEnv "ZITADEL_SYSTEMUSER_PRIVATE_KEY" | quote }}
+    publicKey: {{ requiredEnv "ZITADEL_SYSTEMUSER_PUBLIC_KEY" | quote }}

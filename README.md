@@ -98,6 +98,32 @@ DOMAIN=dev.example.com
 ZITADEL_MASTERKEY=0123456789abcdef0123456789abcdef  # 32 chars, cannot be changed later
 ```
 
+#### Generating System User Keys
+
+The System API requires RSA keys for JWT authentication. Generate them using openssl:
+
+```bash
+# Generate RSA private key
+openssl genrsa -out system-user-private.pem 2048
+
+# Extract public key
+openssl rsa -in system-user-private.pem -pubout -out system-user-public.pem
+
+# Base64 encode for .env file
+echo "ZITADEL_SYSTEMUSER_PRIVATE_KEY=$(base64 -i system-user-private.pem | tr -d '\n')"
+echo "ZITADEL_SYSTEMUSER_PUBLIC_KEY=$(base64 -i system-user-public.pem | tr -d '\n')"
+```
+
+Add the output to your `.env` file along with a system user ID:
+
+```bash
+ZITADEL_SYSTEMUSER_ID=systemuser
+ZITADEL_SYSTEMUSER_PRIVATE_KEY=<base64-encoded-private-key>
+ZITADEL_SYSTEMUSER_PUBLIC_KEY=<base64-encoded-public-key>
+```
+
+The system user has full access to the [Zitadel System API](https://zitadel.com/docs/guides/integrate/zitadel-apis/access-zitadel-system-api), which provides superordinate access across all instances and organizations. Store the private key securely.
+
 Deploy the stack:
 
 ```bash

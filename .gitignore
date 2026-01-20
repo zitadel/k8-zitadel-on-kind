@@ -4,3 +4,5 @@
 .kube
 .helm
 .claude
+*.jwt.json
+*.pem

@@ -49,6 +49,9 @@ zitadel:
     ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
     TLS:
       Enabled: false
+    SystemAPIUsers:
+      {{ .Environment.Values.zitadel.systemUser.id }}:
+        KeyData: {{ .Environment.Values.zitadel.systemUser.publicKey }}
     Database:
       Postgres:
         Host: 'postgres-postgresql'

@@ -62,6 +62,7 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: cf
+    traefik.ingress.kubernetes.io/router.observability.tracing: "false"
   tls: [ ]
   hosts:
     - host: "openobserve.{{ .Environment.Values.domain }}"

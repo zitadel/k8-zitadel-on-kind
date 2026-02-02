@@ -1,0 +1,21 @@
+architecture: standalone
+
+auth:
+  enabled: false
+  # Password unused; auth disabled.
+  password: ""
+
+master:
+  persistence:
+    enabled: false
+
+replica:
+  replicaCount: 0
+
+tls:
+  enabled: false
+
+image:
+  # Pin to a fixed image digest (latest tag pinned for ARM64 availability).
+  tag: latest
+  digest: sha256:b2ccacecba0945e1da5c93e8e9e6c4c7af579514941224a7d80a2fc8dfb09f6c

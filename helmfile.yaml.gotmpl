@@ -164,6 +164,16 @@ releases:
     labels:
       phase: storage
 
+  # Deploys Redis for Zitadel caching.
+  - name: redis
+    namespace: caching
+    chart: bitnami/redis
+    version: 19.6.1
+    values:
+      - values/values-redis.yaml.gotmpl
+    labels:
+      phase: storage
+
   # Deploys OpenObserve, the unified observability backend.
   - name: openobserve
     namespace: observability

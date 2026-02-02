@@ -79,6 +79,39 @@ zitadel:
     ExternalDomain: "zitadel.{{ .Environment.Values.domain }}"
     TLS:
       Enabled: false
+    Caches:
+      Connectors:
+        Redis:
+          Enabled: true
+          Addr: "redis-master.caching.svc.cluster.local:6379"
+          Password: ""
+          DBOffset: 10
+          CircuitBreaker:
+            Interval: 0
+            MaxConsecutiveFailures: 0
+            MaxFailureRatio: 0
+            Timeout: 0
+            MaxRetryRequests: 0
+      Instance:
+        Connector: "redis"
+        MaxAge: 1h
+        LastUseAge: 10m
+      Milestones:
+        Connector: "redis"
+        MaxAge: 1h
+        LastUseAge: 10m
+      Organization:
+        Connector: "redis"
+        MaxAge: 1h
+        LastUseAge: 10m
+      IdPFormCallbacks:
+        Connector: "redis"
+        MaxAge: 1h
+        LastUseAge: 10m
+      FederatedLogouts:
+        Connector: "redis"
+        MaxAge: 1h
+        LastUseAge: 10m
     SystemAPIUsers:
       {{ .Environment.Values.zitadel.systemUser.id }}:
         KeyData: {{ .Environment.Values.zitadel.systemUser.publicKey }}

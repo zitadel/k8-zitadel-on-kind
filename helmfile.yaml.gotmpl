@@ -39,6 +39,8 @@ repositories:
     url: https://traefik.github.io/charts
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
+  - name: valkey
+    url: https://valkey.io/valkey-helm/
   - name: zitadel
     url: https://charts.zitadel.com
   - name: openobserve
@@ -164,13 +166,13 @@ releases:
     labels:
       phase: storage
 
-  # Deploys Redis for Zitadel caching.
-  - name: redis
+  # Deploys Valkey for Zitadel caching.
+  - name: valkey
     namespace: caching
-    chart: bitnami/redis
-    version: 19.6.1
+    chart: valkey/valkey
+    version: 0.9.3
     values:
-      - values/values-redis.yaml.gotmpl
+      - values/values-valkey.yaml.gotmpl
     labels:
       phase: storage
 

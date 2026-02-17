@@ -45,6 +45,8 @@ repositories:
     url: https://charts.zitadel.com
   - name: openobserve
     url: https://charts.openobserve.ai
+  - name: jetstack
+    url: https://charts.jetstack.io
 
 # ## Helmfile Deployment Phases
 #
@@ -120,6 +122,18 @@ releases:
     namespace: networking
     chart: metallb/metallb
     version: 0.15.2
+    needs:
+      - ingress/prepare
+    labels:
+      phase: operators
+
+  # Deploys cert-manager for automated certificate management.
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.17.1
+    values:
+      - values/values-cert-manager.yaml.gotmpl
     needs:
       - ingress/prepare
     labels:

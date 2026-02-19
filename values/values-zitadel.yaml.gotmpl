@@ -3,6 +3,9 @@ image:
 
 replicaCount: 2
 
+podAnnotations:
+  linkerd.io/inject: enabled
+
 ingress:
   enabled: true
   className: traefik
@@ -13,6 +16,8 @@ ingress:
 
 login:
   enabled: true
+  podAnnotations:
+    linkerd.io/inject: enabled
   ingress:
     enabled: true
     className: traefik

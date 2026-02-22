@@ -16,6 +16,8 @@ ingress:
 
 login:
   enabled: true
+  image:
+    tag: 'v4.11.0'
   podAnnotations:
     linkerd.io/inject: enabled
   ingress:

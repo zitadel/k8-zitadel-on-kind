@@ -50,8 +50,8 @@ spec:
   isCA: true
   commonName: identity.linkerd.cluster.local
   secretName: linkerd-identity-issuer
-  duration: 48h
-  renewBefore: 25h
+  duration: 8760h # 365 days
+  renewBefore: 720h # 30 days
   privateKey:
     algorithm: ECDSA
     size: 256

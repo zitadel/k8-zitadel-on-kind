@@ -150,8 +150,13 @@ metrics with PromQL.
 
 ### Accessing Zitadel
 
-Zitadel console is at `https://zitadel.${DOMAIN}/ui/console` with username `zitadel-admin@zitadel.localhost` and
+Zitadel console is at `https://zitadel.${DOMAIN}/ui/console` with username `admin@zitadel.zitadel.${DOMAIN}` and
 password `Password1!`. Change this password immediately after first login.
+
+> **Note:** Zitadel v4.12.0 ships with a new login UI (v2). Unlike the old login, entering an unrecognized username
+> will silently redirect to the registration page instead of showing an error. Make sure you use the exact login name
+> shown above — if you mistype it, you will inadvertently create a new unprivileged account and get stuck on the
+> profile page.
 
 ### Cleanup
 

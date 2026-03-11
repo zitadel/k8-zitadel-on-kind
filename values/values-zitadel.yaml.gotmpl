@@ -171,7 +171,9 @@ zitadel:
           Password: 'Password1!'
           FirstName: 'ZITADEL'
           LastName: 'Admin'
-          Email: 'admin@zitadel.zitadel.{{ .Environment.Values.domain }}'
+          Email:
+            Address: 'admin@zitadel.zitadel.{{ .Environment.Values.domain }}'
+            Verified: true
           PasswordChangeRequired: false
         LoginClient:
           Machine:

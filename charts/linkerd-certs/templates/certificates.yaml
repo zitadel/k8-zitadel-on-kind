@@ -81,3 +81,25 @@ spec:
     namespaceSelector:
       matchLabels:
         kubernetes.io/metadata.name: linkerd
+---
+# Bundle to sync default CAs + Linkerd trust anchor to ConfigMap for Zitadel.
+# This allows both the Zitadel (Go) and Login (Node.js) containers to trust
+# internal certificates issued by cert-manager without losing trust in public
+# CAs. The useDefaultCAs source includes the Mozilla CA bundle so that
+# SSL_CERT_FILE does not overwrite the system root CA store.
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: zitadel-ca-bundle
+spec:
+  sources:
+    - useDefaultCAs: true
+    - secret:
+        name: linkerd-trust-anchor
+        key: ca.crt
+  target:
+    configMap:
+      key: ca-certificates.crt
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: zitadel

@@ -1,5 +1,5 @@
 image:
-  tag: 'v4.12.0'
+  tag: 'v4.13.0'
 
 replicaCount: 2
 
@@ -29,9 +29,10 @@ extraVolumeMounts:
 login:
   enabled: true
   image:
-    tag: 'v4.12.0'
+    tag: 'v4.13.0'
   podAnnotations:
     linkerd.io/inject: enabled
+    config.linkerd.io/skip-outbound-ports: "8080"
   env:
     - name: SSL_CERT_FILE
       value: /etc/ssl/certs/ca-certificates.crt

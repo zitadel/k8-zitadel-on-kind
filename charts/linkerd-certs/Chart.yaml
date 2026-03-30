@@ -1,5 +1,0 @@
-apiVersion: v2
-name: linkerd-certs
-description: Linkerd trust anchor and identity issuer certificates using cert-manager
-type: application
-version: 0.1.0

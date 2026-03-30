@@ -3,8 +3,7 @@ image:
 
 replicaCount: 2
 
-podAnnotations:
-  linkerd.io/inject: enabled
+podAnnotations: {}
 
 ingress:
   enabled: true
@@ -14,38 +13,11 @@ ingress:
     traefik.ingress.kubernetes.io/router.tls: 'true'
     traefik.ingress.kubernetes.io/router.tls.certresolver: cf
 
-extraVolumes:
-  - name: ca-bundle
-    configMap:
-      name: zitadel-ca-bundle
-      optional: false
-
-extraVolumeMounts:
-  - name: ca-bundle
-    mountPath: /etc/ssl/certs/ca-certificates.crt
-    subPath: ca-certificates.crt
-    readOnly: true
-
 login:
   enabled: true
   image:
     tag: 'v4.13.0'
-  podAnnotations:
-    linkerd.io/inject: enabled
-    config.linkerd.io/skip-outbound-ports: "8080"
-  env:
-    - name: SSL_CERT_FILE
-      value: /etc/ssl/certs/ca-certificates.crt
-  extraVolumes:
-    - name: ca-bundle
-      configMap:
-        name: zitadel-ca-bundle
-        optional: false
-  extraVolumeMounts:
-    - name: ca-bundle
-      mountPath: /etc/ssl/certs/ca-certificates.crt
-      subPath: ca-certificates.crt
-      readOnly: true
+  podAnnotations: {}
   ingress:
     enabled: true
     className: traefik
@@ -78,8 +50,6 @@ metrics:
     enabled: false
 
 env:
-  - name: SSL_CERT_FILE
-    value: /etc/ssl/certs/ca-certificates.crt
   - name: ZITADEL_TRACING_TYPE
     value: "otel"
   - name: ZITADEL_TRACING_ENDPOINT
